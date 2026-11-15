@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %> · Triple Z Printing</title>
+  <link rel="stylesheet" href="/static/css/print.css">
+</head>
+<body>
+  <div class="toolbar no-print">
+    <a href="/orders/<%= order.id %>">&larr; Back to order</a>
+    <button type="button" id="print-btn">&#128424; Print invoice</button>
+  </div>
+  <article class="invoice">
+    <header>
+      <div>
+        <h1>Triple Z Printing</h1>
+        <p class="muted">Printing services</p>
+      </div>
+      <div class="meta">
+        <h2>INVOICE</h2>
+        <p><strong><%= order.order_no %></strong></p>
+        <p>Date: <%= fmt.dateOnly(order.created_at) %></p>
+        <p>Due / pickup: <%= fmt.dateTime(order.deadline_at) %></p>
+      </div>
+    </header>
+    <section class="bill-to">
+      <h3>Bill to</h3>
+      <p><strong><%= order.customer_name %></strong></p>
+      <% if (order.customer_phone) { %><p><%= order.customer_phone %></p><% } %>
+      <% if (order.customer_email) { %><p><%= order.customer_email %></p><% } %>
+      <% if (order.description) { %><p class="desc"><%= order.description %></p><% } %>
+    </section>
+    <table>
+      <thead><tr><th>#</th><th>Item</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead>
+      <tbody>
+      <% order.items.forEach(function (it, i) { %>
+        <tr><td><%= i + 1 %></td><td><%= it.item %></td><td class="num"><%= it.qty %></td><td class="num"><%= fmt.peso(it.unit_price_cents) %></td><td class="num"><%= fmt.peso(it.qty * it.unit_price_cents) %></td></tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <table class="totals">
+      <tr><th>Total</th><td class="num"><%= fmt.peso(order.total_cents) %></td></tr>
+      <% order.payments.forEach(function (p) { %>
+        <tr class="muted"><th>Paid <%= fmt.dateOnly(p.paid_at) %> (<%= METHOD_LABELS[p.method] %>)</th><td class="num">−<%= fmt.peso(p.amount_cents) %></td></tr>
+      <% }) %>
+      <tr class="balance"><th>Balance due</th><td class="num"><%= fmt.peso(order.balance_cents) %></td></tr>
+    </table>
+    <p class="status">Status: <strong><%= order.status === 'cancelled' ? 'CANCELLED' : order.balance_cents <= 0 ? 'PAID' : order.paid_cents > 0 ? 'PARTIALLY PAID' : 'UNPAID' %></strong></p>
+    <footer>
+      <p>Thank you for choosing Triple Z Printing!</p>
+      <p class="muted small">Printed <%= fmt.dateTime(printedAt) %> by <%= currentUser.display_name %></p>
+    </footer>
+  </article>
+  <script src="/static/js/invoice.js" defer></script>
+</body>
+</html>

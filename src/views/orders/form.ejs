@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<%- include('../partials/errors', { errors }) %>
+<form method="post" action="<%= action %>" class="card order-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <fieldset>
+    <legend>Customer</legend>
+    <label>Name * <input name="customer_name" value="<%= form.customer_name || '' %>" maxlength="100" required></label>
+    <label>Phone <input name="customer_phone" value="<%= form.customer_phone || '' %>" maxlength="30" inputmode="tel"></label>
+    <label>Email <input type="email" name="customer_email" value="<%= form.customer_email || '' %>" maxlength="254"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Job</legend>
+    <label>Description <textarea name="description" maxlength="1000" rows="2" placeholder="e.g. 3x6 ft tarpaulin for birthday, full color"><%= form.description || '' %></textarea></label>
+    <label>Deadline * <input type="datetime-local" name="deadline" value="<%= form.deadline || '' %>" required></label>
+    <label>Priority
+      <select name="priority">
+        <option value="normal" <%= form.priority === 'normal' ? 'selected' : '' %>>Normal</option>
+        <option value="rush" <%= form.priority === 'rush' ? 'selected' : '' %>>Rush</option>
+      </select>
+    </label>
+    <label>Internal notes <textarea name="notes" maxlength="1000" rows="2"><%= form.notes || '' %></textarea></label>
+  </fieldset>
+  <fieldset>
+    <legend>Items</legend>
+    <table class="items" id="items">
+      <thead><tr><th>Item</th><th>Qty</th><th>Unit price (₱)</th><th></th></tr></thead>
+      <tbody>
+      <% (form.rows && form.rows.length ? form.rows : [{ item: '', qty: '1', price: '' }]).forEach(function (r) { %>
+        <tr>
+          <td><input name="item" value="<%= r.item %>" maxlength="120" placeholder="e.g. Business cards (box of 100)"></td>
+          <td><input name="qty" value="<%= r.qty %>" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="qty"></td>
+          <td><input name="price" value="<%= r.price %>" inputmode="decimal" maxlength="15" class="price"></td>
+          <td><button type="button" class="link remove-row" aria-label="Remove item">&times;</button></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <button type="button" id="add-row">+ Add item</button>
+    <p class="total-line">Total: <strong id="form-total">—</strong></p>
+  </fieldset>
+  <div class="actions">
+    <button type="submit" class="primary">Save order</button>
+    <a href="<%= typeof order !== 'undefined' && order ? '/orders/' + order.id : '/orders' %>">Cancel</a>
+  </div>
+</form>
+<script src="/static/js/order-form.js" defer></script>
+<%- include('../partials/footer') %>

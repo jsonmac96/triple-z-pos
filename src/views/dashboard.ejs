@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+<h1 class="page-title anim" data-i="0">Good day, <%= currentUser.display_name %></h1>
+
+<% if (alerts.length) { %>
+<section class="alert-banner anim" data-i="1" role="alert">
+  <strong>&#9888; <%= alerts.length %> order<%= alerts.length === 1 ? '' : 's' %> need attention</strong>
+  <ul>
+    <% alerts.slice(0, 5).forEach(function (o) { %>
+      <li><span class="badge u-<%= o.urgency %>"><%= o.urgency_label %></span>
+        <a href="/orders/<%= o.id %>"><%= o.order_no %></a> · <%= o.customer_name %> · due <%= fmt.dateTime(o.deadline_at) %> (<%= o.time_left %>)</li>
+    <% }) %>
+  </ul>
+  <% if (alerts.length > 5) { %><a href="/orders?status=open">See all</a><% } %>
+</section>
+<% } %>
+
+<section class="stats">
+  <div class="stat anim" data-i="2"><span class="label">Sales today</span><span class="value" data-count="<%= stats.todaySales %>" data-money="1"><%= fmt.peso(stats.todaySales) %></span></div>
+  <div class="stat anim" data-i="3"><span class="label">Open orders</span><span class="value" data-count="<%= stats.openOrders %>"><%= stats.openOrders %></span></div>
+  <div class="stat anim" data-i="4"><span class="label">Due today</span><span class="value" data-count="<%= stats.dueToday %>"><%= stats.dueToday %></span></div>
+  <div class="stat anim <%= stats.overdue ? 'danger' : '' %>" data-i="5"><span class="label">Overdue</span><span class="value" data-count="<%= stats.overdue %>"><%= stats.overdue %></span></div>
+  <div class="stat anim" data-i="6"><span class="label">Ready for pickup</span><span class="value" data-count="<%= stats.ready %>"><%= stats.ready %></span></div>
+</section>
+
+<div class="grid2">
+  <section class="card anim" data-i="7">
+    <h2>Sales, last 7 days <span class="muted"><%= fmt.peso(stats.weekTotal) %></span></h2>
+    <div class="bars">
+      <% stats.week.forEach(function (d) { %>
+        <div class="bar-col" title="<%= d.day %>: <%= fmt.peso(d.total_cents) %>">
+          <span class="bar-amt"><%= d.total_cents ? fmt.peso(d.total_cents).replace('.00', '') : '' %></span>
+          <div class="bar" data-pct="<%= Math.round(d.total_cents / stats.weekMax * 100) %>"></div>
+          <span class="bar-day"><%= new Date(d.day + 'T00:00:00Z').toLocaleDateString('en-PH', { weekday: 'short', timeZone: 'UTC' }) %></span>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="card anim" data-i="8">
+    <h2>Upcoming deadlines</h2>
+    <% if (!upcoming.length) { %><p class="muted">Nothing due. Nice!</p><% } else { %>
+    <ul class="deadlines">
+      <% upcoming.forEach(function (o) { %>
+        <li>
+          <a href="/orders/<%= o.id %>"><strong><%= o.order_no %></strong> <%= o.customer_name %></a>
+          <span class="right"><%- include('partials/badge', { order: o }) %> <span class="muted"><%= o.status === 'ready' ? '' : o.time_left %></span></span>
+        </li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </section>
+</div>
+
+<section class="card anim" data-i="9">
+  <h2>Recent payments</h2>
+  <% if (!recent.length) { %><p class="muted">No payments yet.</p><% } else { %>
+  <table>
+    <thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Method</th><th class="num">Amount</th></tr></thead>
+    <tbody>
+    <% recent.forEach(function (p) { %>
+      <tr><td><%= fmt.dateTime(p.paid_at) %></td><td><a href="/orders/<%= p.order_id %>"><%= p.order_no %></a></td>
+        <td><%= p.customer_name %></td><td><%= METHOD_LABELS[p.method] %></td><td class="num"><%= fmt.peso(p.amount_cents) %></td></tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+<script src="/static/js/dashboard.js" defer></script>
+<%- include('partials/footer') %>

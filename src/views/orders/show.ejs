@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1><%= order.order_no %> <%- include('../partials/badge', { order }) %><% if (order.priority === 'rush') { %> <span class="badge rush">Rush</span><% } %></h1>
+  <div class="actions">
+    <a class="button" href="/orders/<%= order.id %>/edit">Edit</a>
+    <a class="button primary" href="/orders/<%= order.id %>/invoice">&#128424; Print invoice</a>
+  </div>
+</div>
+<%- include('../partials/errors', { errors }) %>
+
+<div class="grid2">
+  <section class="card">
+    <h2>Details</h2>
+    <dl class="details">
+      <dt>Customer</dt><dd><%= order.customer_name %></dd>
+      <% if (order.customer_phone) { %><dt>Phone</dt><dd><%= order.customer_phone %></dd><% } %>
+      <% if (order.customer_email) { %><dt>Email</dt><dd><%= order.customer_email %></dd><% } %>
+      <dt>Deadline</dt><dd><%= fmt.dateTime(order.deadline_at) %> <% if (order.urgency !== 'none') { %><span class="muted">(<%= order.time_left %>)</span><% } %></dd>
+      <% if (order.description) { %><dt>Description</dt><dd class="pre"><%= order.description %></dd><% } %>
+      <% if (order.notes) { %><dt>Notes</dt><dd class="pre"><%= order.notes %></dd><% } %>
+      <dt>Taken by</dt><dd><%= order.created_by_name || '—' %> on <%= fmt.dateTime(order.created_at) %></dd>
+    </dl>
+    <form method="post" action="/orders/<%= order.id %>/status" class="status-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Status
+        <select name="status">
+          <% STATUSES.forEach(function (s) { %><option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= STATUS_LABELS[s] %></option><% }) %>
+        </select>
+      </label>
+      <button type="submit">Update status</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Payment</h2>
+    <dl class="details money">
+      <dt>Total</dt><dd><%= fmt.peso(order.total_cents) %></dd>
+      <dt>Paid</dt><dd><%= fmt.peso(order.paid_cents) %></dd>
+      <dt>Balance</dt><dd class="<%= order.balance_cents > 0 ? 'owed' : 'paid' %>"><strong><%= fmt.peso(order.balance_cents) %></strong></dd>
+    </dl>
+    <% if (order.balance_cents > 0 && order.status !== 'cancelled') { %>
+    <form method="post" action="/orders/<%= order.id %>/payments" class="pay-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Amount (₱) <input name="amount" inputmode="decimal" maxlength="15" required value="<%= (order.balance_cents / 100).toFixed(2) %>"></label>
+      <label>Method
+        <select name="method"><% METHODS.forEach(function (m) { %><option value="<%= m %>"><%= METHOD_LABELS[m] %></option><% }) %></select>
+      </label>
+      <label>Reference <input name="reference" maxlength="100" placeholder="GCash ref no., OR no., etc."></label>
+      <button type="submit" class="primary">Record payment</button>
+    </form>
+    <% } else if (order.balance_cents <= 0) { %><p class="paid">&#10003; Fully paid</p><% } %>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Items</h2>
+  <table>
+    <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead>
+    <tbody>
+    <% order.items.forEach(function (it) { %>
+      <tr><td><%= it.item %></td><td class="num"><%= it.qty %></td><td class="num"><%= fmt.peso(it.unit_price_cents) %></td><td class="num"><%= fmt.peso(it.qty * it.unit_price_cents) %></td></tr>
+    <% }) %>
+    </tbody>
+    <tfoot><tr><th colspan="3" class="num">Total</th><th class="num"><%= fmt.peso(order.total_cents) %></th></tr></tfoot>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Payment history</h2>
+  <% if (!order.payments.length) { %><p class="muted">No payments yet.</p><% } else { %>
+  <table>
+    <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th>Received by</th><th class="num">Amount</th></tr></thead>
+    <tbody>
+    <% order.payments.forEach(function (p) { %>
+      <tr><td><%= fmt.dateTime(p.paid_at) %></td><td><%= METHOD_LABELS[p.method] %></td><td><%= p.reference %></td><td><%= p.received_by_name || '' %></td><td class="num"><%= fmt.peso(p.amount_cents) %></td></tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

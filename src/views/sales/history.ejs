@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1>Sales history</h1>
+  <a class="button" href="/sales/export.csv?range=custom&amp;from=<%= report.fromDay %>&amp;to=<%= report.toDay %>">Download CSV</a>
+</div>
+<form method="get" action="/sales" class="filters card">
+  <select name="range">
+    <% [['today', 'Today'], ['week', 'Last 7 days'], ['month', 'This month'], ['custom', 'Custom dates']].forEach(function (r) { %>
+      <option value="<%= r[0] %>" <%= range === r[0] ? 'selected' : '' %>><%= r[1] %></option>
+    <% }) %>
+  </select>
+  <label>From <input type="date" name="from" value="<%= report.fromDay %>"></label>
+  <label>To <input type="date" name="to" value="<%= report.toDay %>"></label>
+  <button type="submit">Show</button>
+</form>
+
+<section class="stats">
+  <div class="stat"><span class="label">Total sales</span><span class="value"><%= fmt.peso(report.total_cents) %></span></div>
+  <div class="stat"><span class="label">Payments</span><span class="value"><%= report.count %></span></div>
+  <% report.byMethod.forEach(function (m) { %>
+    <div class="stat"><span class="label"><%= METHOD_LABELS[m.method] %></span><span class="value"><%= fmt.peso(m.total_cents) %></span></div>
+  <% }) %>
+</section>
+<p class="muted"><%= fmt.dateOnly(report.fromDay + 'T00:00:00+08:00') %> to <%= fmt.dateOnly(report.toDay + 'T00:00:00+08:00') %></p>
+
+<div class="grid2">
+  <section class="card">
+    <h2>By day</h2>
+    <% if (!report.byDay.length) { %><p class="muted">No sales in this period.</p><% } else { %>
+    <table>
+      <thead><tr><th>Day</th><th class="num">Payments</th><th class="num">Total</th></tr></thead>
+      <tbody>
+      <% report.byDay.forEach(function (d) { %>
+        <tr><td><%= fmt.dateOnly(d.day + 'T00:00:00+08:00') %></td><td class="num"><%= d.count %></td><td class="num"><%= fmt.peso(d.total_cents) %></td></tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <% } %>
+  </section>
+  <section class="card">
+    <h2>All payments</h2>
+    <% if (!report.payments.length) { %><p class="muted">No payments in this period.</p><% } else { %>
+    <table>
+      <thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Method</th><th class="num">Amount</th></tr></thead>
+      <tbody>
+      <% report.payments.forEach(function (p) { %>
+        <tr><td><%= fmt.dateTime(p.paid_at) %></td><td><a href="/orders/<%= p.order_id %>"><%= p.order_no %></a></td><td><%= p.customer_name %></td>
+          <td><%= METHOD_LABELS[p.method] %><% if (p.reference) { %> <span class="muted small"><%= p.reference %></span><% } %></td><td class="num"><%= fmt.peso(p.amount_cents) %></td></tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <% } %>
+  </section>
+</div>
+<%- include('../partials/footer') %>

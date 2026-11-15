@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %> · Triple Z POS</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<% const signedIn = currentUser && !currentUser.must_change_password; %>
+<% if (signedIn) { %>
+<header class="topbar">
+  <a class="brand" href="/">Triple Z <span>POS</span></a>
+  <nav>
+    <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Dashboard</a>
+    <a href="/orders" class="<%= currentPath.startsWith('/orders') && currentPath !== '/orders/new' ? 'active' : '' %>">Orders</a>
+    <a href="/orders/new" class="<%= currentPath === '/orders/new' ? 'active' : '' %>">+ New order</a>
+    <a href="/sales" class="<%= currentPath.startsWith('/sales') ? 'active' : '' %>">Sales</a>
+  </nav>
+  <div class="user">
+    <a href="/orders?status=open&amp;urgency=overdue" class="bell" id="alert-bell" title="Overdue and urgent orders">
+      &#128276; <span class="bell-count" id="alert-count" hidden>0</span>
+    </a>
+    <button type="button" class="link" id="enable-notify" hidden>Enable alerts</button>
+    <span class="who"><%= currentUser.display_name %></span>
+    <form method="post" action="/logout" class="inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="link">Log out</button>
+    </form>
+  </div>
+</header>
+<% } %>
+<main class="<%= signedIn ? '' : 'narrow' %>">
+<% if (flash) { %><div class="flash" role="status"><%= flash %></div><% } %>

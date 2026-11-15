@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #eef0f3; color: #111; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.toolbar { max-width: 800px; margin: 1rem auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center; }
+.toolbar a { color: #4f46e5; }
+.toolbar button { font: inherit; padding: .55rem 1rem; border-radius: 6px; border: 1px solid #4f46e5; background: #4f46e5; color: #fff; cursor: pointer; }
+.invoice { max-width: 800px; margin: 0 auto 2rem; background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 2px 12px rgba(0, 0, 0, .08); }
+.invoice header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 2px solid #111; padding-bottom: 1rem; margin-bottom: 1.25rem; }
+.invoice h1 { margin: 0; font-size: 1.6rem; }
+.invoice h2 { margin: 0 0 .3rem; letter-spacing: .15em; font-size: 1.2rem; }
+.invoice h3 { margin: 0 0 .3rem; font-size: .8rem; text-transform: uppercase; color: #555; }
+.invoice p { margin: .1rem 0; }
+.meta { text-align: right; }
+.bill-to { margin-bottom: 1.25rem; }
+.desc { color: #444; white-space: pre-wrap; margin-top: .4rem !important; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+th, td { padding: .45rem .4rem; border-bottom: 1px solid #ddd; text-align: left; }
+thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppercase; }
+.num { text-align: right; white-space: nowrap; }
+.totals { width: 55%; margin-left: auto; }
+.totals th { font-weight: 500; }
+.totals .balance th, .totals .balance td { font-weight: 700; font-size: 1.1rem; border-top: 2px solid #111; border-bottom: none; }
+.muted { color: #666; } .small { font-size: .8rem; }
+.status { text-align: right; }
+.invoice footer { margin-top: 2rem; text-align: center; border-top: 1px dashed #bbb; padding-top: 1rem; }
+@media print {
+  @page { margin: 12mm; }
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  .invoice { box-shadow: none; padding: 0; max-width: none; margin: 0; }
+}

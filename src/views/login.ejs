@@ -1,0 +1,13 @@
+<%- include('partials/header') %>
+<section class="card login">
+  <h1>Triple Z <span class="accent">POS</span></h1>
+  <p class="muted">Staff log in</p>
+  <% if (error) { %><div class="errors" role="alert"><%= error %></div><% } %>
+  <form method="post" action="/login" autocomplete="on">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Username <input name="username" value="<%= username %>" maxlength="50" required autofocus autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+    <label>Password <input type="password" name="password" maxlength="200" required autocomplete="current-password"></label>
+    <button type="submit" class="primary">Log in</button>
+  </form>
+</section>
+<%- include('partials/footer') %>

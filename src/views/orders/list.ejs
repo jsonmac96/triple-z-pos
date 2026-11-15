@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1>Orders</h1>
+  <a class="button primary" href="/orders/new">+ New order</a>
+</div>
+<form method="get" action="/orders" class="filters card">
+  <input type="search" name="q" value="<%= filters.q %>" maxlength="100" placeholder="Search order no, customer, phone, description">
+  <select name="status">
+    <option value="open" <%= filters.status === 'open' ? 'selected' : '' %>>Open (not released)</option>
+    <option value="" <%= filters.status === '' ? 'selected' : '' %>>All statuses</option>
+    <% STATUSES.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= STATUS_LABELS[s] %></option><% }) %>
+  </select>
+  <select name="urgency">
+    <option value="">Any urgency</option>
+    <% ['overdue', 'urgent', 'soon', 'normal'].forEach(function (u) { %><option value="<%= u %>" <%= filters.urgency === u ? 'selected' : '' %>><%= LEVELS[u].label %></option><% }) %>
+  </select>
+  <button type="submit">Filter</button>
+</form>
+<section class="card">
+<% if (!orders.length) { %><p class="muted">No orders match.</p><% } else { %>
+<table>
+  <thead><tr><th>Order</th><th>Customer</th><th>Deadline</th><th>Status</th><th class="num">Total</th><th class="num">Balance</th></tr></thead>
+  <tbody>
+  <% orders.forEach(function (o) { %>
+    <tr class="row-<%= o.urgency %>">
+      <td><a href="/orders/<%= o.id %>"><strong><%= o.order_no %></strong></a><% if (o.priority === 'rush') { %> <span class="badge rush">Rush</span><% } %></td>
+      <td><%= o.customer_name %><div class="muted small"><%= o.description.slice(0, 60) %></div></td>
+      <td><%= fmt.dateTime(o.deadline_at) %><div class="muted small"><%= o.urgency === 'none' ? '' : o.time_left %></div></td>
+      <td><%- include('../partials/badge', { order: o }) %></td>
+      <td class="num"><%= fmt.peso(o.total_cents) %></td>
+      <td class="num <%= o.balance_cents > 0 ? 'owed' : '' %>"><%= fmt.peso(o.balance_cents) %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<% } %>
+</section>
+<%- include('../partials/footer') %>
