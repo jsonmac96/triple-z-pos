@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Triple Z">
+  <title>Triple Z</title>
+  <defs>
+    <path id="z" d="M16 13h32v8L28.5 43H48v8H16v-8l19.5-22H16z"/>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#111827"/>
+  <g transform="translate(-2.5 -2)">
+    <use href="#z" fill="#FFE600" transform="translate(5 5)"/>
+    <use href="#z" fill="#EC008C" transform="translate(2.5 2.5)"/>
+    <use href="#z" fill="#00AEEF"/>
+  </g>
+</svg>

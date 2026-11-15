@@ -72,6 +72,10 @@ function createApp({
   });
 
   app.use(generalLimiter());
+  // Browser favicon + web app manifest live at the site root.
+  const publicDir = path.join(__dirname, '..', 'public');
+  app.get('/favicon.ico', (req, res) => res.sendFile(path.join(publicDir, 'favicon.ico'), { maxAge: '7d' }));
+  app.get('/site.webmanifest', (req, res) => res.type('application/manifest+json').sendFile(path.join(publicDir, 'site.webmanifest'), { maxAge: '1d' }));
   app.use('/static', express.static(path.join(__dirname, '..', 'public'), { index: false, maxAge: production ? '1d' : 0 }));
   app.use(express.urlencoded({ extended: false, limit: '20kb', parameterLimit: 300 }));
 

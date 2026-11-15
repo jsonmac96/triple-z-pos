@@ -131,3 +131,15 @@ test('app refuses to start with a weak session secret', () => {
   const { createApp } = require('../src/app');
   assert.throws(() => createApp({ db: openDb(':memory:'), sessionSecret: 'short' }));
 });
+
+test('logo, favicon and manifest are served without login', async () => {
+  const { app } = await setup();
+  const ico = await request(app).get('/favicon.ico');
+  assert.strictEqual(ico.status, 200);
+  for (const p of ['/static/img/logo.svg', '/static/img/logo-mark.svg', '/static/img/favicon.svg', '/static/img/apple-touch-icon.png', '/site.webmanifest']) {
+    assert.strictEqual((await request(app).get(p)).status, 200, p);
+  }
+  const login = await request(app).get('/login');
+  assert.match(login.text, /rel="icon"/);
+  assert.match(login.text, /logo\.svg/);
+});

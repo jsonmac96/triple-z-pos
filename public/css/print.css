@@ -6,6 +6,8 @@ body { margin: 0; background: #eef0f3; color: #111; font: 14px/1.45 system-ui, -
 .invoice { max-width: 800px; margin: 0 auto 2rem; background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 2px 12px rgba(0, 0, 0, .08); }
 .invoice header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 2px solid #111; padding-bottom: 1rem; margin-bottom: 1.25rem; }
 .invoice h1 { margin: 0; font-size: 1.6rem; }
+.shop { display: flex; align-items: center; gap: .85rem; }
+.shop img { display: block; border-radius: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .invoice h2 { margin: 0 0 .3rem; letter-spacing: .15em; font-size: 1.2rem; }
 .invoice h3 { margin: 0 0 .3rem; font-size: .8rem; text-transform: uppercase; color: #555; }
 .invoice p { margin: .1rem 0; }

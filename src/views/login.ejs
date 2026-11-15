@@ -1,7 +1,7 @@
 <%- include('partials/header') %>
 <section class="card login">
-  <h1>Triple Z <span class="accent">POS</span></h1>
-  <p class="muted">Staff log in</p>
+  <img class="login-logo" src="/static/img/logo.svg" alt="Triple Z Printing" width="300" height="64">
+  <p class="muted">Point of sale · staff log in</p>
   <% if (error) { %><div class="errors" role="alert"><%= error %></div><% } %>
   <form method="post" action="/login" autocomplete="on">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">

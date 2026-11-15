@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title><%= title %> · Triple Z Printing</title>
   <link rel="stylesheet" href="/static/css/print.css">
+<%- include('partials/head-icons') %>
 </head>
 <body>
   <div class="toolbar no-print">
@@ -14,9 +15,12 @@
   </div>
   <article class="invoice">
     <header>
-      <div>
-        <h1>Triple Z Printing</h1>
-        <p class="muted">Printing services</p>
+      <div class="shop">
+        <img src="/static/img/logo-mark.svg" alt="" width="56" height="56">
+        <div>
+          <h1>Triple Z Printing</h1>
+          <p class="muted">Printing services</p>
+        </div>
       </div>
       <div class="meta">
         <h2>INVOICE</h2>

@@ -18,7 +18,10 @@ main.narrow { max-width: 420px; padding-top: 10vh; }
 .topbar a { color: #d1d5db; text-decoration: none; }
 .topbar nav a { padding: .35rem .6rem; border-radius: 6px; }
 .topbar nav a.active, .topbar nav a:hover { background: #374151; color: #fff; }
-.brand { font-weight: 700; color: #fff !important; font-size: 1.05rem; } .brand span { color: #a5b4fc; }
+.brand { display: inline-flex; align-items: center; gap: .5rem; font-weight: 700; color: #fff !important; font-size: 1.05rem; } .brand span { color: #a5b4fc; }
+.brand img { display: block; border-radius: 7px; }
+.login-logo { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 0 .5rem; animation: fadeUp .6s ease-out; }
+.login-logo.small { max-width: 190px; }
 .topbar .user { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
 .topbar .who { color: #9ca3af; }
 .topbar .link { color: #d1d5db; }
