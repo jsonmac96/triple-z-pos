@@ -4,7 +4,7 @@ const IDLE_MS = 30 * 60 * 1000;      // log out after 30 minutes of inactivity
 const ABSOLUTE_MS = 8 * 60 * 60 * 1000; // force re-login after 8 hours
 
 function loadUser(db) {
-  const stmt = db.prepare('SELECT id, username, display_name, must_change_password FROM users WHERE id = ?');
+  const stmt = db.prepare('SELECT id, username, display_name, must_change_password, invoice_paper FROM users WHERE id = ?');
   return (req, res, next) => {
     const s = req.session;
     if (s && s.userId) {

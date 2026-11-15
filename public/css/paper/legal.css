@@ -1,0 +1,4 @@
+/* Legal (8.5 × 14 in) — generated from src/services/paper.js */
+@page { size: 8.5in 14in; margin: 12mm; }
+.invoice { width: 8.5in; min-height: 14in; padding: 12mm; }
+@media print { .invoice { width: auto; min-height: 0; padding: 0; } }

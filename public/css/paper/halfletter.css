@@ -1,0 +1,4 @@
+/* Half letter (5.5 × 8.5 in) — generated from src/services/paper.js */
+@page { size: 5.5in 8.5in; margin: 8mm; }
+.invoice { width: 5.5in; min-height: 8.5in; padding: 8mm; }
+@media print { .invoice { width: auto; min-height: 0; padding: 0; } }

@@ -16,7 +16,16 @@ function openDb(file) {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
+  migrate(db);
   return db;
+}
+
+/** Small, idempotent schema upgrades for databases created by older versions. */
+function migrate(db) {
+  const userCols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  if (!userCols.includes('invoice_paper')) {
+    db.exec("ALTER TABLE users ADD COLUMN invoice_paper TEXT NOT NULL DEFAULT 'letter'");
+  }
 }
 
 function audit(db, { userId = null, action, entity = '', entityId = null, details = '', ip = '' }) {

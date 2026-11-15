@@ -5,6 +5,7 @@ const svc = require('../services/orders');
 const { parseLocalInput, toLocalInput, parsePeso } = require('../format');
 const { audit } = require('../db');
 const { LEVELS } = require('../services/urgency');
+const { PAPERS, KIND_LABELS, isPaper, getPaper } = require('../services/paper');
 
 const MAX_ITEMS = 50;
 const asArray = (v) => (v === undefined ? [] : Array.isArray(v) ? v : [v]);
@@ -172,7 +173,17 @@ module.exports = function orderRoutes(db) {
     });
 
   router.get('/:id/invoice', idParam, loadOrder, (req, res) => {
-    res.render('invoice', { title: `Invoice ${req.order.order_no}`, order: req.order, printedAt: new Date().toISOString() });
+    // Paper choice comes only from the whitelist; it is remembered per user.
+    let key = req.user.invoice_paper;
+    const asked = req.query.paper;
+    if (isPaper(asked)) {
+      key = asked;
+      if (asked !== req.user.invoice_paper) db.prepare('UPDATE users SET invoice_paper = ? WHERE id = ?').run(asked, req.user.id);
+    }
+    res.render('invoice', {
+      title: `Invoice ${req.order.order_no}`, order: req.order, printedAt: new Date().toISOString(),
+      paper: getPaper(key), PAPERS, KIND_LABELS,
+    });
   });
 
   return router;

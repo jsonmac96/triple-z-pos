@@ -1,9 +1,14 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: #eef0f3; color: #111; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-.toolbar { max-width: 800px; margin: 1rem auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center; }
+.toolbar { max-width: 816px; margin: 1rem auto .25rem; padding: 0 1rem; display: flex; flex-wrap: wrap; gap: .6rem 1rem; justify-content: space-between; align-items: center; }
 .toolbar a { color: #4f46e5; }
 .toolbar button { font: inherit; padding: .55rem 1rem; border-radius: 6px; border: 1px solid #4f46e5; background: #4f46e5; color: #fff; cursor: pointer; }
-.invoice { max-width: 800px; margin: 0 auto 2rem; background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 2px 12px rgba(0, 0, 0, .08); }
+.toolbar button.secondary { background: #fff; color: #4f46e5; }
+.paper-form { display: flex; align-items: center; gap: .5rem; }
+.paper-form label { font-weight: 600; }
+.paper-form select { font: inherit; padding: .5rem .6rem; border: 1px solid #cdd2d8; border-radius: 6px; background: #fff; max-width: 70vw; }
+.print-hint { max-width: 816px; margin: 0 auto 1rem; padding: 0 1rem; color: #555; font-size: .85rem; }
+.invoice { max-width: 100%; margin: 0 auto 2rem; background: #fff; border-radius: 4px; box-shadow: 0 2px 12px rgba(0, 0, 0, .12); }
 .invoice header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 2px solid #111; padding-bottom: 1rem; margin-bottom: 1.25rem; }
 .invoice h1 { margin: 0; font-size: 1.6rem; }
 .shop { display: flex; align-items: center; gap: .85rem; }
@@ -24,9 +29,38 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
 .muted { color: #666; } .small { font-size: .8rem; }
 .status { text-align: right; }
 .invoice footer { margin-top: 2rem; text-align: center; border-top: 1px dashed #bbb; padding-top: 1rem; }
+/* ---------- Half sheets (A5, half letter) ---------- */
+.kind-half .invoice { font-size: 11.5px; }
+.kind-half .invoice h1 { font-size: 1.3rem; }
+.kind-half .invoice header { padding-bottom: .6rem; margin-bottom: .8rem; }
+.kind-half .shop img { width: 40px; height: 40px; }
+.kind-half .totals { width: 70%; }
+.kind-half .invoice footer { margin-top: 1rem; }
+
+/* ---------- Thermal receipts ---------- */
+.kind-receipt .invoice { border-radius: 0; font: 12px/1.35 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: #000; }
+.receipt header { display: block; text-align: center; border-bottom: 1px dashed #000; padding-bottom: .5rem; margin-bottom: .5rem; }
+.receipt header img { display: block; margin: 0 auto .3rem; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.receipt h1 { font-size: 1.15em; margin: 0 0 .2rem; }
+.receipt p { margin: .05rem 0; }
+.r-customer { border-bottom: 1px dashed #000; padding-bottom: .4rem; margin-bottom: .4rem; }
+.r-customer .desc { white-space: pre-wrap; }
+.r-items { list-style: none; margin: 0; padding: 0 0 .4rem; border-bottom: 1px dashed #000; }
+.r-items li { padding: .15rem 0; }
+.r-name { word-break: break-word; }
+.r-line { display: flex; justify-content: space-between; gap: .5rem; }
+.r-line span:last-child { white-space: nowrap; }
+.r-totals { padding: .4rem 0; border-bottom: 1px dashed #000; }
+.r-total, .r-balance { font-weight: 700; }
+.r-balance { font-size: 1.1em; margin-top: .2rem; }
+.r-status { text-align: center; font-weight: 700; margin: .5rem 0 !important; letter-spacing: .1em; }
+.receipt footer { margin-top: .4rem; padding-top: .4rem; border-top: none; text-align: center; }
+.receipt footer .small { font-size: .85em; }
+.paper-thermal58 .invoice { font-size: 10px; }
+.paper-thermal58 .receipt header img { width: 30px; height: 30px; }
+
 @media print {
-  @page { margin: 12mm; }
   body { background: #fff; }
   .no-print { display: none !important; }
-  .invoice { box-shadow: none; padding: 0; max-width: none; margin: 0; }
+  .invoice { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
 }

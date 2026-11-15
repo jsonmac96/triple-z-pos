@@ -1,0 +1,4 @@
+/* Thermal receipt 80 mm — generated from src/services/paper.js */
+@page { size: 80mm 297mm; margin: 0; } /* length is set to fit the receipt by invoice.js */
+.invoice { width: 80mm; padding: 3mm; }
+@media print { .invoice { width: auto; min-height: 0; } }

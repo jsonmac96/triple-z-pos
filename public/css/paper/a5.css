@@ -1,0 +1,4 @@
+/* A5 half sheet (148 × 210 mm) — generated from src/services/paper.js */
+@page { size: 148mm 210mm; margin: 8mm; }
+.invoice { width: 148mm; min-height: 210mm; padding: 8mm; }
+@media print { .invoice { width: auto; min-height: 0; padding: 0; } }

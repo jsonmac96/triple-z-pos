@@ -194,3 +194,53 @@ test('sales date filters: presets and custom dates', async () => {
   assert.strictEqual(bad.status, 200);
   assert.match(bad.text, /<option value="week" selected>/);
 });
+
+test('invoice paper sizes: default letter, choice remembered, whitelist only', async () => {
+  const { app } = await setup();
+  const agent = await loggedIn(app);
+  const { id } = await createOrder(agent);
+  let res = await agent.get(`/orders/${id}/invoice`);
+  assert.match(res.text, /\/static\/css\/paper\/letter\.css/);
+  assert.match(res.text, /class="paper-letter kind-sheet"/);
+
+  res = await agent.get(`/orders/${id}/invoice?paper=thermal80`);
+  assert.match(res.text, /\/static\/css\/paper\/thermal80\.css/);
+  assert.match(res.text, /class="invoice receipt"/);
+  assert.match(res.text, /2 × ₱350\.00/);
+
+  res = await agent.get(`/orders/${id}/invoice`);
+  assert.match(res.text, /paper\/thermal80\.css/, 'choice remembered');
+
+  for (const bad of ['evil', '../x', 'letter.css', '']) {
+    res = await agent.get(`/orders/${id}/invoice?paper=${encodeURIComponent(bad)}`);
+    assert.strictEqual(res.status, 200, bad);
+    assert.match(res.text, /paper\/thermal80\.css/, bad);
+  }
+  res = await agent.get(`/orders/${id}/invoice?paper=a5`);
+  assert.match(res.text, /kind-half/);
+});
+
+test('every paper stylesheet exists and sets a page size', async () => {
+  const request = require('supertest');
+  const { PAPERS } = require('../src/services/paper');
+  const { app } = await setup();
+  for (const k of Object.keys(PAPERS)) {
+    const res = await request(app).get(`/static/css/paper/${k}.css`);
+    assert.strictEqual(res.status, 200, k);
+    assert.match(res.text, /@page \{ size: /, k);
+  }
+});
+
+test('database migration is idempotent', () => {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const { openDb } = require('../src/db');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tz-'));
+  const file = path.join(dir, 'm.db');
+  openDb(file).close();
+  const db = openDb(file);
+  assert.ok(db.prepare('PRAGMA table_info(users)').all().some((c) => c.name === 'invoice_paper'));
+  db.close();
+  fs.rmSync(dir, { recursive: true, force: true });
+});

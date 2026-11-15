@@ -11,6 +11,12 @@ There is no separate front-end project.
 - **Animated dashboard:** today's sales, open orders, orders due today, overdue orders, a 7-day sales chart, upcoming deadlines and recent payments.
   Animations are turned off for people who set "reduce motion" in their operating system.
 - **Print invoice:** each order has a printable invoice (*Print invoice* button → your browser's print dialog, or *Save as PDF*).
+  A **Paper** menu sizes the invoice to the paper you print on:
+  - Bond paper: Short bond / Letter (default), A4, Long bond, Legal
+  - Half sheets: A5, Half letter
+  - Thermal receipt rolls: 80 mm and 58 mm. These use a narrow receipt layout, and the printed length fits the receipt.
+
+  Each person's last choice is remembered.
 
 Amounts are in Philippine pesos (₱). Times are shown in Asia/Manila time.
 

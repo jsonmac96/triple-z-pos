@@ -6,13 +6,69 @@
   <meta name="robots" content="noindex, nofollow">
   <title><%= title %> · Triple Z Printing</title>
   <link rel="stylesheet" href="/static/css/print.css">
+  <link rel="stylesheet" href="/static/css/paper/<%= paper.key %>.css" id="paper-css">
 <%- include('partials/head-icons') %>
 </head>
-<body>
+<% const statusText = order.status === 'cancelled' ? 'CANCELLED' : order.balance_cents <= 0 ? 'PAID' : order.paid_cents > 0 ? 'PARTIALLY PAID' : 'UNPAID'; %>
+<body class="paper-<%= paper.key %> kind-<%= paper.kind %>" data-paper-width="<%= paper.width %>">
   <div class="toolbar no-print">
     <a href="/orders/<%= order.id %>">&larr; Back to order</a>
+    <form method="get" action="/orders/<%= order.id %>/invoice" class="paper-form" id="paper-form">
+      <label for="paper-select">Paper</label>
+      <select name="paper" id="paper-select">
+        <% Object.keys(KIND_LABELS).forEach(function (kind) { %>
+          <optgroup label="<%= KIND_LABELS[kind] %>">
+            <% Object.keys(PAPERS).filter(function (k) { return PAPERS[k].kind === kind; }).forEach(function (k) { %>
+              <option value="<%= k %>" <%= k === paper.key ? 'selected' : '' %>><%= PAPERS[k].label %></option>
+            <% }) %>
+          </optgroup>
+        <% }) %>
+      </select>
+      <button type="submit" class="secondary" id="paper-apply">Apply</button>
+    </form>
     <button type="button" id="print-btn">&#128424; Print invoice</button>
   </div>
+  <p class="print-hint no-print">
+    In the print dialog choose paper size <strong><%= paper.label %></strong>, Margins: <strong><%= paper.kind === 'receipt' ? 'None' : 'Default' %></strong>, Scale: <strong>100%</strong>.
+    <% if (paper.kind === 'receipt') { %>Select your receipt printer as the destination.<% } %>
+  </p>
+
+<% if (paper.kind === 'receipt') { %>
+  <article class="invoice receipt">
+    <header>
+      <img src="/static/img/logo-mark.svg" alt="" width="40" height="40">
+      <h1>Triple Z Printing</h1>
+      <p>INVOICE <strong><%= order.order_no %></strong></p>
+      <p>Date: <%= fmt.dateOnly(order.created_at) %></p>
+      <p>Pickup: <%= fmt.dateTime(order.deadline_at) %></p>
+    </header>
+    <section class="r-customer">
+      <p><strong><%= order.customer_name %></strong></p>
+      <% if (order.customer_phone) { %><p><%= order.customer_phone %></p><% } %>
+      <% if (order.description) { %><p class="desc"><%= order.description %></p><% } %>
+    </section>
+    <ul class="r-items">
+      <% order.items.forEach(function (it) { %>
+        <li>
+          <div class="r-name"><%= it.item %></div>
+          <div class="r-line"><span><%= it.qty %> × <%= fmt.peso(it.unit_price_cents) %></span><span><%= fmt.peso(it.qty * it.unit_price_cents) %></span></div>
+        </li>
+      <% }) %>
+    </ul>
+    <div class="r-totals">
+      <div class="r-line r-total"><span>TOTAL</span><span><%= fmt.peso(order.total_cents) %></span></div>
+      <% order.payments.forEach(function (p) { %>
+        <div class="r-line"><span>Paid <%= fmt.dateOnly(p.paid_at) %> <%= METHOD_LABELS[p.method] %></span><span>−<%= fmt.peso(p.amount_cents) %></span></div>
+      <% }) %>
+      <div class="r-line r-balance"><span>BALANCE</span><span><%= fmt.peso(order.balance_cents) %></span></div>
+    </div>
+    <p class="r-status"><%= statusText %></p>
+    <footer>
+      <p>Thank you for choosing Triple Z Printing!</p>
+      <p class="small">Printed <%= fmt.dateTime(printedAt) %> by <%= currentUser.display_name %></p>
+    </footer>
+  </article>
+<% } else { %>
   <article class="invoice">
     <header>
       <div class="shop">
@@ -51,12 +107,13 @@
       <% }) %>
       <tr class="balance"><th>Balance due</th><td class="num"><%= fmt.peso(order.balance_cents) %></td></tr>
     </table>
-    <p class="status">Status: <strong><%= order.status === 'cancelled' ? 'CANCELLED' : order.balance_cents <= 0 ? 'PAID' : order.paid_cents > 0 ? 'PARTIALLY PAID' : 'UNPAID' %></strong></p>
+    <p class="status">Status: <strong><%= statusText %></strong></p>
     <footer>
       <p>Thank you for choosing Triple Z Printing!</p>
       <p class="muted small">Printed <%= fmt.dateTime(printedAt) %> by <%= currentUser.display_name %></p>
     </footer>
   </article>
+<% } %>
   <script src="/static/js/invoice.js" defer></script>
 </body>
 </html>
