@@ -18,6 +18,7 @@ function createApp({
   trustProxy = false,
   cookieSecure = production,
   loginRateLimit = {},
+  ephemeralStorage = false, // true when the database will be lost on redeploy (no volume)
 } = {}) {
   if (!db) throw new Error('db is required');
   if (!sessionSecret || sessionSecret.length < 32) throw new Error('SESSION_SECRET must be at least 32 characters');
@@ -67,6 +68,7 @@ function createApp({
       currentUser: null,
       csrfToken: '',
       flash: null,
+      ephemeralStorage,
     });
     next();
   });

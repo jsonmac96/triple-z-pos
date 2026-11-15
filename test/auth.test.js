@@ -143,3 +143,12 @@ test('logo, favicon and manifest are served without login', async () => {
   assert.match(login.text, /rel="icon"/);
   assert.match(login.text, /logo\.svg/);
 });
+
+test('storage warning banner shows only when data is not stored permanently', async () => {
+  const plain = await setup();
+  assert.doesNotMatch((await request(plain.app).get('/login')).text, /storage-warning/);
+  const eph = await setup({ ephemeralStorage: true });
+  const res = await request(eph.app).get('/login');
+  assert.match(res.text, /class="storage-warning"/);
+  assert.match(res.text, /NOT being saved permanently/);
+});

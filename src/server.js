@@ -52,6 +52,7 @@ const app = createApp({
   production,
   trustProxy: process.env.TRUST_PROXY === '1',
   cookieSecure: production && process.env.COOKIE_SECURE !== '0',
+  ephemeralStorage: onRailway && !process.env.RAILWAY_VOLUME_MOUNT_PATH && !process.env.DB_FILE,
 });
 
 let port = Number(process.env.PORT);

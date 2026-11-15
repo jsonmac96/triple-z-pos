@@ -9,6 +9,12 @@
 <%- include('head-icons') %>
 </head>
 <body>
+<% if (ephemeralStorage) { %>
+<div class="storage-warning" role="alert">
+  &#9888; Data is NOT being saved permanently. Orders, sales and password changes will be erased the next time the app is updated or restarts.
+  Ask the admin to attach a Railway volume (mount path <code>/data</code>).
+</div>
+<% } %>
 <% const signedIn = currentUser && !currentUser.must_change_password; %>
 <% if (signedIn) { %>
 <header class="topbar">

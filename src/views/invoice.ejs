@@ -11,6 +11,12 @@
 </head>
 <% const statusText = order.status === 'cancelled' ? 'CANCELLED' : order.balance_cents <= 0 ? 'PAID' : order.paid_cents > 0 ? 'PARTIALLY PAID' : 'UNPAID'; %>
 <body class="paper-<%= paper.key %> kind-<%= paper.kind %>" data-paper-width="<%= paper.width %>">
+<% if (ephemeralStorage) { %>
+<div class="storage-warning no-print" role="alert">
+  &#9888; Data is NOT being saved permanently. Orders, sales and password changes will be erased the next time the app is updated or restarts.
+  Ask the admin to attach a Railway volume (mount path <code>/data</code>).
+</div>
+<% } %>
   <div class="toolbar no-print">
     <a href="/orders/<%= order.id %>">&larr; Back to order</a>
     <form method="get" action="/orders/<%= order.id %>/invoice" class="paper-form" id="paper-form">

@@ -64,3 +64,5 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
   .no-print { display: none !important; }
   .invoice { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
 }
+.storage-warning { background: #b91c1c; color: #fff; font-weight: 600; padding: .7rem 1rem; text-align: center; line-height: 1.4; }
+.storage-warning code { background: rgba(255, 255, 255, .2); padding: 0 .3rem; border-radius: 4px; }
