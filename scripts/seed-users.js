@@ -7,7 +7,7 @@ const fs = require('fs');
 const envFile = path.join(__dirname, '..', '.env');
 if (fs.existsSync(envFile) && typeof process.loadEnvFile === 'function') process.loadEnvFile(envFile);
 
-const { openDb, audit } = require('../src/db');
+const { openDb, audit, defaultDbFile } = require('../src/db');
 const { hashPassword, TEMP_PASSWORD } = require('../src/security/password');
 
 const STAFF = [
@@ -39,9 +39,11 @@ async function seed(db, { reset = false } = {}) {
 }
 
 if (require.main === module) {
-  const db = openDb(process.env.DB_FILE || path.join(__dirname, '..', 'data', 'triplez.db'));
-  seed(db, { reset: process.argv.includes('--reset') })
-    .then((r) => { r.forEach((line) => console.log(line)); console.log('Temporary password must be changed on first login.'); db.close(); })
+  const reset = process.argv.includes('--reset') || process.env.RESET_STAFF_PASSWORDS === '1';
+  if (reset) console.warn('RESET_STAFF_PASSWORDS is on: staff passwords are reset to the temporary password. Remove this variable right after logging in.');
+  const db = openDb(defaultDbFile());
+  seed(db, { reset })
+    .then((r) => { r.forEach((line) => console.log(line)); if (r.some((l) => !l.startsWith('kept'))) console.log('Temporary password must be changed on first login.'); db.close(); })
     .catch((err) => { console.error(err); process.exit(1); });
 }
 

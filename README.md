@@ -85,6 +85,33 @@ HOST=127.0.0.1
 
 All data is in one SQLite file (`DB_FILE`, default `data/triplez.db`). Back it up regularly, e.g. copy the file once a day.
 
+## Deploy on Railway
+
+The repo includes a `railway.json` file. It tells Railway how to build and start the app and how to check that it's healthy.
+The staff accounts are created automatically on first start, and existing accounts are left alone on later starts.
+
+1. **Create the service:** on [railway.com](https://railway.com), choose **New Project → Deploy from GitHub repo** and pick this repository.
+   Then in the service's **Settings → Source → Branch**, choose the branch you deploy from.
+2. **Add a volume (required):** without a volume, all orders and sales are erased on every deploy.
+   Right-click the service on the project canvas (or press Ctrl/Cmd + K and type *volume*), choose **Add Volume**, and set the mount path to `/data`.
+   The app detects the volume automatically.
+3. **Set variables** under the service's **Variables → Raw Editor**:
+   ```
+   NODE_ENV=production
+   TRUST_PROXY=1
+   SESSION_SECRET=<a random string of 64+ characters>
+   ```
+   To make the secret, run `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` or use any password generator.
+   Don't set `PORT` or `HOST`: Railway and the app handle those.
+4. **Deploy:** Railway redeploys after the changes. Under **Deployments → View logs** you should see `created razel`, `created joshua`, a `Database: /data/triplez.db` line and `Triple Z POS running`.
+5. **Get a web address:** go to **Settings → Networking → Generate Domain**. Your own domain can be added there too.
+6. **Log in** as `razel` / `TripleZ1!` and as `joshua` / `TripleZ1!`, and set new passwords.
+
+Locked out or forgot a password? Add the variable `RESET_STAFF_PASSWORDS=1` and let it redeploy. Both accounts go back to `TripleZ1!`.
+Log in and set a new password, then **delete the variable right away**. If it stays, every restart resets the passwords again.
+
+Back up the volume regularly. If your plan has it, use the volume's **Backups** tab.
+
 ## Tests
 
 ```bash

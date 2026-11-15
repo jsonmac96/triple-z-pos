@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const envFile = path.join(__dirname, '..', '.env');
 if (fs.existsSync(envFile) && typeof process.loadEnvFile === 'function') process.loadEnvFile(envFile);
 
-const { openDb } = require('./db');
+const { openDb, defaultDbFile } = require('./db');
 const { createApp } = require('./app');
 
 const production = process.env.NODE_ENV === 'production';
@@ -21,7 +21,13 @@ if (!secret || secret === 'change-me' || secret.length < 32) {
   console.warn('WARNING: SESSION_SECRET not set; using a random one (sessions reset on restart). Do not do this in production.');
 }
 
-const db = openDb(process.env.DB_FILE || path.join(__dirname, '..', 'data', 'triplez.db'));
+const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME);
+if (onRailway && !process.env.RAILWAY_VOLUME_MOUNT_PATH && !process.env.DB_FILE) {
+  console.warn('WARNING: no Railway volume attached. Orders and sales WILL BE LOST on the next deploy. Add a volume to this service.');
+}
+const dbFile = defaultDbFile();
+console.log(`Database: ${dbFile}`);
+const db = openDb(dbFile);
 const app = createApp({
   db,
   sessionSecret: secret,
@@ -31,7 +37,7 @@ const app = createApp({
 });
 
 const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || '127.0.0.1';
+const host = process.env.HOST || (onRailway ? '0.0.0.0' : '127.0.0.1');
 const server = app.listen(port, host, () => console.log(`Triple Z POS running at http://${host}:${port}`));
 server.headersTimeout = 20000;
 server.requestTimeout = 30000;
