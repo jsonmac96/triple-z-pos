@@ -31,7 +31,8 @@ if (!secret || secret === 'change-me' || secret.length < 32) {
   console.warn('WARNING: SESSION_SECRET not set; using a random one (sessions reset on restart). Do not do this in production.');
 }
 
-const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME);
+const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME
+  || process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_SERVICE_ID);
 if (onRailway && !process.env.RAILWAY_VOLUME_MOUNT_PATH && !process.env.DB_FILE) {
   console.warn('WARNING: no Railway volume attached. Orders and sales WILL BE LOST on the next deploy. Add a volume to this service.');
 }
@@ -46,9 +47,23 @@ const app = createApp({
   cookieSecure: production && process.env.COOKIE_SECURE !== '0',
 });
 
-const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || (onRailway ? '0.0.0.0' : '127.0.0.1');
-const server = app.listen(port, host, () => console.log(`Triple Z POS running at http://${host}:${port}`));
+const port = Number(process.env.PORT) || (onRailway ? 8080 : 3000);
+// On Railway listen on all interfaces ("::" accepts both IPv6 and IPv4); locally only on this machine.
+const host = process.env.HOST || (onRailway ? '::' : '127.0.0.1');
+const server = app.listen(port, host);
+server.on('listening', () => {
+  const a = server.address();
+  console.log(`Triple Z POS running on ${a.address} port ${a.port}${process.env.PORT ? ' (PORT set by environment)' : ''}`);
+});
+server.on('error', (err) => {
+  if (host === '::' && ['EAFNOSUPPORT', 'EADDRNOTAVAIL'].includes(err.code)) {
+    console.warn('IPv6 not available; listening on 0.0.0.0 instead.');
+    server.listen(port, '0.0.0.0');
+    return;
+  }
+  console.error(err);
+  process.exit(1);
+});
 server.headersTimeout = 20000;
 server.requestTimeout = 30000;
 
