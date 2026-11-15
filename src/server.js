@@ -7,11 +7,18 @@ const crypto = require('crypto');
 const envFile = path.join(__dirname, '..', '.env');
 if (fs.existsSync(envFile) && typeof process.loadEnvFile === 'function') process.loadEnvFile(envFile);
 
+// Tidy values typed into hosting dashboards: stray spaces or surrounding quotes break things.
+for (const key of ['NODE_ENV', 'SESSION_SECRET', 'TRUST_PROXY', 'COOKIE_SECURE', 'HOST', 'PORT', 'DB_FILE']) {
+  if (typeof process.env[key] === 'string') {
+    process.env[key] = process.env[key].trim().replace(/^(['"])(.*)\1$/, '$2').trim();
+  }
+}
+
 const { openDb, defaultDbFile } = require('./db');
 const { createApp } = require('./app');
 
 const production = process.env.NODE_ENV === 'production';
-let secret = (process.env.SESSION_SECRET || '').trim();
+let secret = process.env.SESSION_SECRET || '';
 if (!secret || secret === 'change-me' || secret.length < 32) {
   if (production) {
     // Explain what is wrong without ever printing the secret itself.
@@ -47,21 +54,30 @@ const app = createApp({
   cookieSecure: production && process.env.COOKIE_SECURE !== '0',
 });
 
-const port = Number(process.env.PORT) || (onRailway ? 8080 : 3000);
+let port = Number(process.env.PORT);
+if (process.env.PORT && !(Number.isInteger(port) && port > 0 && port < 65536)) {
+  console.warn(`WARNING: PORT "${process.env.PORT}" is not a valid port number; using ${onRailway ? 8080 : 3000}.`);
+  port = 0;
+}
+port = port || (onRailway ? 8080 : 3000);
 // On Railway listen on all interfaces ("::" accepts both IPv6 and IPv4); locally only on this machine.
 const host = process.env.HOST || (onRailway ? '::' : '127.0.0.1');
+console.log(`Starting web server on host "${host}" port ${port}...`);
 const server = app.listen(port, host);
 server.on('listening', () => {
   const a = server.address();
-  console.log(`Triple Z POS running on ${a.address} port ${a.port}${process.env.PORT ? ' (PORT set by environment)' : ''}`);
+  console.log(`Triple Z POS running on ${a.address} port ${a.port}`);
 });
+let fellBack = false;
 server.on('error', (err) => {
-  if (host === '::' && ['EAFNOSUPPORT', 'EADDRNOTAVAIL'].includes(err.code)) {
-    console.warn('IPv6 not available; listening on 0.0.0.0 instead.');
+  // If the configured host can't be used (typo, no IPv6, ...), fall back to all IPv4 interfaces.
+  if (!fellBack && host !== '0.0.0.0' && ['EAFNOSUPPORT', 'EADDRNOTAVAIL', 'ENOTFOUND', 'EAI_AGAIN', 'EINVAL'].includes(err.code)) {
+    fellBack = true;
+    console.warn(`WARNING: cannot listen on host "${host}" (${err.code}); listening on 0.0.0.0 instead.`);
     server.listen(port, '0.0.0.0');
     return;
   }
-  console.error(err);
+  console.error(`FATAL: web server could not start on port ${port}: ${err.code || ''} ${err.message}`);
   process.exit(1);
 });
 server.headersTimeout = 20000;
