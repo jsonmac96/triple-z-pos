@@ -11,10 +11,20 @@ const { openDb, defaultDbFile } = require('./db');
 const { createApp } = require('./app');
 
 const production = process.env.NODE_ENV === 'production';
-let secret = process.env.SESSION_SECRET;
+let secret = (process.env.SESSION_SECRET || '').trim();
 if (!secret || secret === 'change-me' || secret.length < 32) {
   if (production) {
-    console.error('FATAL: set SESSION_SECRET to a random string of at least 32 characters (see .env.example).');
+    // Explain what is wrong without ever printing the secret itself.
+    let why;
+    if (!('SESSION_SECRET' in process.env)) {
+      const similar = Object.keys(process.env).filter((k) => k.toUpperCase().replace(/[^A-Z]/g, '').includes('SESSIONSECRET'));
+      why = similar.length
+        ? `SESSION_SECRET is not set, but a similarly named variable exists: ${similar.map((k) => JSON.stringify(k)).join(', ')}. Rename it to exactly SESSION_SECRET.`
+        : 'SESSION_SECRET is not set for this service. On Railway, add it in this service\'s Variables tab (not only as a shared/project variable) and click Deploy.';
+    } else if (!secret) why = 'SESSION_SECRET is set but empty.';
+    else if (secret === 'change-me') why = 'SESSION_SECRET is still the placeholder "change-me".';
+    else why = `SESSION_SECRET is only ${secret.length} characters long.`;
+    console.error(`FATAL: ${why} It must be a random string of at least 32 characters.`);
     process.exit(1);
   }
   secret = crypto.randomBytes(48).toString('hex');
