@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1>Inventory</h1>
+  <div class="actions">
+    <a class="button primary" href="/inventory/new">+ Add material / supply</a>
+    <a class="button" href="/catalog/new?kind=item">+ Add item for sale</a>
+  </div>
+</div>
+<section class="stats">
+  <div class="stat"><span class="label">Stock items</span><span class="value"><%= totals.count %></span></div>
+  <a class="stat stat-link <%= totals.low ? 'warn' : '' %>" href="/inventory?status=low"><span class="label">Low stock</span><span class="value"><%= totals.low %></span></a>
+  <a class="stat stat-link <%= totals.out ? 'danger' : '' %>" href="/inventory?status=out"><span class="label">Out of stock</span><span class="value"><%= totals.out %></span></a>
+  <div class="stat"><span class="label">Stock value (at cost)</span><span class="value"><%= fmt.peso(totals.value_cents) %></span></div>
+</section>
+<form method="get" action="/inventory" class="filters card">
+  <input type="search" name="q" value="<%= q %>" maxlength="100" placeholder="Search name, category or code">
+  <select name="status">
+    <option value="">All stock</option>
+    <option value="low" <%= status === 'low' ? 'selected' : '' %>>Low or out</option>
+    <option value="out" <%= status === 'out' ? 'selected' : '' %>>Out of stock</option>
+  </select>
+  <button type="submit">Filter</button>
+</form>
+<section class="card">
+  <p class="muted small"><strong>Materials</strong> are supplies you use (paper, ink, tarpaulin rolls). <strong>Items</strong> with stock tracking come from Services &amp; Items and go down automatically when ordered.</p>
+  <% if (!products.length) { %><p class="muted">No stock items yet.</p><% } else { %>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Type</th><th class="num">On hand</th><th class="num">Reorder at</th><th>Status</th><th class="num">Value</th><th></th></tr></thead>
+    <tbody>
+    <% products.forEach(function (p) { %>
+      <tr class="<%= p.stock_status === 'out' ? 'row-overdue' : p.stock_status === 'low' ? 'row-soon' : '' %>">
+        <td><a href="/inventory/<%= p.id %>"><strong><%= p.name %></strong></a><% if (p.category) { %><div class="muted small"><%= p.category %></div><% } %></td>
+        <td><span class="badge kind-<%= p.kind %>"><%= p.kind_label %></span></td>
+        <td class="num"><strong><%= p.stock_qty %></strong> <span class="muted small"><%= p.unit %></span></td>
+        <td class="num"><%= p.reorder_level %></td>
+        <td><span class="badge stock-<%= p.stock_status %>"><%= p.stock_label %></span></td>
+        <td class="num"><%= fmt.peso(Math.max(0, p.stock_qty) * p.cost_cents) %></td>
+        <td class="row-actions"><a href="/inventory/<%= p.id %>">Stock in / out</a></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

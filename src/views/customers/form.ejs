@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<%- include('../partials/errors', { errors }) %>
+<form method="post" action="<%= action %>" class="card narrow-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label>Name * <input name="name" value="<%= form.name || '' %>" maxlength="100" required></label>
+  <label>Phone <input name="phone" value="<%= form.phone || '' %>" maxlength="60" inputmode="tel" placeholder="0917 123 4567"></label>
+  <label>Email <input type="email" name="email" value="<%= form.email || '' %>" maxlength="254"></label>
+  <label>Address <textarea name="address" maxlength="300" rows="2"><%= form.address || '' %></textarea></label>
+  <label>Notes <textarea name="notes" maxlength="1000" rows="3" placeholder="e.g. prefers matte finish, pays via GCash"><%= form.notes || '' %></textarea></label>
+  <div class="actions">
+    <button type="submit" class="primary">Save customer</button>
+    <a href="<%= customer ? '/customers/' + customer.id : '/customers' %>">Cancel</a>
+  </div>
+</form>
+<%- include('../partials/footer') %>

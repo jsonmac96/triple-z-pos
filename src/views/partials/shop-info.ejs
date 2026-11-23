@@ -1,0 +1,12 @@
+<div class="shop-info">
+  <% if (shop.receipt_logo === '1') { %><img class="shop-logo" src="/static/img/logo-mark.svg" alt="" width="<%= compact ? 40 : 56 %>" height="<%= compact ? 40 : 56 %>"><% } %>
+  <div class="shop-lines">
+    <p class="shop-name"><%= shop.shop_name %></p>
+    <% if (shop.shop_tagline) { %><p><%= shop.shop_tagline %></p><% } %>
+    <% if (shop.shop_address) { %><p class="shop-address"><%= shop.shop_address %></p><% } %>
+    <% if (shop.shop_phone) { %><p>Tel: <%= shop.shop_phone %></p><% } %>
+    <% if (shop.shop_email) { %><p><%= shop.shop_email %></p><% } %>
+    <% if (shop.shop_other) { %><p><%= shop.shop_other %></p><% } %>
+    <% if (shop.shop_tin) { %><p>TIN: <%= shop.shop_tin %></p><% } %>
+  </div>
+</div>

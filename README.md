@@ -18,7 +18,19 @@ There is no separate front-end project.
 
   Each person's last choice is remembered.
 
+- **Collections:** every order with money still owed, oldest first. Includes totals, how long each balance has been unpaid (0–7 / 8–30 / 31–60 / 60+ days), what was released but not paid, and the biggest balances by customer. Payments can be recorded right from the list.
+- **Customers:** customers are saved automatically from orders. Repeat clients are matched by phone number, or by name when there's no phone. Each customer page shows contact details, address, notes, order history, total paid and balance owed. Use "New order for this customer" to start an order with their details filled in.
+- **Services & Items:** your price list. *Services* are jobs (layout, tarpaulin per sq ft); *items* are goods (mugs, folders). Pick them on the order form to fill in the name and price. Deactivating an item hides it from new orders and keeps its history.
+- **Inventory:** stock for items and for *materials* (paper, ink, tarpaulin rolls).
+  - Ordered stock items are deducted automatically. Edits adjust the difference, and cancelling an order returns the stock.
+  - Stock in, stock out and "set to actual count" each come with a full history.
+  - Low and out-of-stock items show on the dashboard.
+- **Settings:** shop name, address, contact numbers, email, Facebook and TIN, printed in **bold** at the top of receipts and invoices; all other text prints in regular letters. You can also set line spacing (Normal / Wide / Extra wide), text size, the logo on/off and the footer message. A **Download backup** button saves a copy of all business data; passwords are never included.
+
 Amounts are in Philippine pesos (₱). Times are shown in Asia/Manila time.
+
+### Updates never erase data
+Database upgrades only add new tables and columns. Before an upgrade, the app saves a snapshot of the database to `backups/` next to the database file (on Railway: `/data/backups/`) and keeps the 5 newest.
 
 ## Run it
 

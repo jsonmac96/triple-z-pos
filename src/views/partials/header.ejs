@@ -20,10 +20,18 @@
 <header class="topbar">
   <a class="brand" href="/"><img src="/static/img/logo-mark.svg" alt="" width="30" height="30"> Triple Z <span>POS</span></a>
   <nav>
-    <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Dashboard</a>
-    <a href="/orders" class="<%= currentPath.startsWith('/orders') && currentPath !== '/orders/new' ? 'active' : '' %>">Orders</a>
-    <a href="/orders/new" class="<%= currentPath === '/orders/new' ? 'active' : '' %>">+ New order</a>
-    <a href="/sales" class="<%= currentPath.startsWith('/sales') ? 'active' : '' %>">Sales</a>
+    <% const tab = function (href, label, match) { const on = match ? match() : currentPath === href; %>
+      <a href="<%= href %>" class="<%= on ? 'active' : '' %>"><%= label %></a>
+    <% }; %>
+    <% tab('/', 'Dashboard'); %>
+    <% tab('/orders', 'Orders', function () { return currentPath.startsWith('/orders') && currentPath !== '/orders/new'; }); %>
+    <% tab('/orders/new', '+ New order'); %>
+    <% tab('/collections', 'Collections', function () { return currentPath.startsWith('/collections'); }); %>
+    <% tab('/customers', 'Customers', function () { return currentPath.startsWith('/customers'); }); %>
+    <% tab('/catalog', 'Services & Items', function () { return currentPath.startsWith('/catalog'); }); %>
+    <% tab('/inventory', 'Inventory', function () { return currentPath.startsWith('/inventory'); }); %>
+    <% tab('/sales', 'Sales', function () { return currentPath.startsWith('/sales'); }); %>
+    <% tab('/settings', 'Settings', function () { return currentPath.startsWith('/settings'); }); %>
   </nav>
   <div class="user">
     <a href="/orders?status=open&amp;urgency=overdue" class="bell" id="alert-bell" title="Overdue and urgent orders">
@@ -40,3 +48,4 @@
 <% } %>
 <main class="<%= signedIn ? '' : 'narrow' %>">
 <% if (flash) { %><div class="flash" role="status"><%= flash %></div><% } %>
+<% if (flashError) { %><div class="flash flash-error" role="alert"><%= flashError %></div><% } %>

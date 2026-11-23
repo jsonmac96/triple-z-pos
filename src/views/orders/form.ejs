@@ -5,9 +5,12 @@
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
   <fieldset>
     <legend>Customer</legend>
-    <label>Name * <input name="customer_name" value="<%= form.customer_name || '' %>" maxlength="100" required></label>
-    <label>Phone <input name="customer_phone" value="<%= form.customer_phone || '' %>" maxlength="30" inputmode="tel"></label>
-    <label>Email <input type="email" name="customer_email" value="<%= form.customer_email || '' %>" maxlength="254"></label>
+    <input type="hidden" name="customer_id" id="customer-id" value="<%= form.customer_id || '' %>">
+    <label>Name * <input name="customer_name" id="customer-name" value="<%= form.customer_name || '' %>" maxlength="100" required list="customer-list" autocomplete="off" placeholder="Type to search existing customers">
+      <span class="hint" id="customer-hint"><%= form.customer_id ? 'Existing customer' : 'New customers are saved automatically.' %></span></label>
+    <datalist id="customer-list"><% pickerCustomers.forEach(function (c) { %><option value="<%= c.name %>"><%= c.phone %></option><% }) %></datalist>
+    <label>Phone <input name="customer_phone" id="customer-phone" value="<%= form.customer_phone || '' %>" maxlength="30" inputmode="tel"></label>
+    <label>Email <input type="email" name="customer_email" id="customer-email" value="<%= form.customer_email || '' %>" maxlength="254"></label>
   </fieldset>
   <fieldset>
     <legend>Job</legend>
@@ -24,10 +27,21 @@
   <fieldset>
     <legend>Items</legend>
     <table class="items" id="items">
-      <thead><tr><th>Item</th><th>Qty</th><th>Unit price (₱)</th><th></th></tr></thead>
+      <thead><tr><th>Service / item</th><th>Description</th><th>Qty</th><th>Unit price (₱)</th><th></th></tr></thead>
       <tbody>
-      <% (form.rows && form.rows.length ? form.rows : [{ item: '', qty: '1', price: '' }]).forEach(function (r) { %>
+      <% (form.rows && form.rows.length ? form.rows : [{ item: '', qty: '1', price: '', product_id: '' }]).forEach(function (r) { %>
         <tr>
+          <td>
+            <select class="pick" aria-label="Pick a service or item">
+              <option value="">Custom…</option>
+              <% ['service', 'item'].forEach(function (kind) { const list = pickerProducts.filter(function (p) { return p.kind === kind; }); if (!list.length) return; %>
+                <optgroup label="<%= kind === 'service' ? 'Services' : 'Items' %>">
+                  <% list.forEach(function (p) { %><option value="<%= p.id %>" <%= String(r.product_id || '') === String(p.id) ? 'selected' : '' %>><%= p.name %> (<%= fmt.peso(p.price_cents) %>/<%= p.unit %>)</option><% }) %>
+                </optgroup>
+              <% }) %>
+            </select>
+            <input type="hidden" name="product_id" class="product-id" value="<%= r.product_id || '' %>">
+          </td>
           <td><input name="item" value="<%= r.item %>" maxlength="120" placeholder="e.g. Business cards (box of 100)"></td>
           <td><input name="qty" value="<%= r.qty %>" inputmode="numeric" pattern="[0-9]*" maxlength="6" class="qty"></td>
           <td><input name="price" value="<%= r.price %>" inputmode="decimal" maxlength="15" class="price"></td>
@@ -36,6 +50,7 @@
       <% }) %>
       </tbody>
     </table>
+    <p class="hint">Add your price list in <a href="/catalog">Services &amp; Items</a> to pick them here. Stock items go down automatically.</p>
     <button type="button" id="add-row">+ Add item</button>
     <p class="total-line">Total: <strong id="form-total">—</strong></p>
   </fieldset>
@@ -44,5 +59,7 @@
     <a href="<%= typeof order !== 'undefined' && order ? '/orders/' + order.id : '/orders' %>">Cancel</a>
   </div>
 </form>
+<script type="application/json" id="picker-customers"><%- jsonData(pickerCustomers) %></script>
+<script type="application/json" id="picker-products"><%- jsonData(pickerProducts) %></script>
 <script src="/static/js/order-form.js" defer></script>
 <%- include('../partials/footer') %>

@@ -11,8 +11,6 @@ body { margin: 0; background: #eef0f3; color: #111; font: 14px/1.45 system-ui, -
 .invoice { max-width: 100%; margin: 0 auto 2rem; background: #fff; border-radius: 4px; box-shadow: 0 2px 12px rgba(0, 0, 0, .12); }
 .invoice header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 2px solid #111; padding-bottom: 1rem; margin-bottom: 1.25rem; }
 .invoice h1 { margin: 0; font-size: 1.6rem; }
-.shop { display: flex; align-items: center; gap: .85rem; }
-.shop img { display: block; border-radius: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .invoice h2 { margin: 0 0 .3rem; letter-spacing: .15em; font-size: 1.2rem; }
 .invoice h3 { margin: 0 0 .3rem; font-size: .8rem; text-transform: uppercase; color: #555; }
 .invoice p { margin: .1rem 0; }
@@ -25,7 +23,7 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
 .num { text-align: right; white-space: nowrap; }
 .totals { width: 55%; margin-left: auto; }
 .totals th { font-weight: 500; }
-.totals .balance th, .totals .balance td { font-weight: 700; font-size: 1.1rem; border-top: 2px solid #111; border-bottom: none; }
+.totals .balance th, .totals .balance td { font-size: 1.15rem; border-top: 2px solid #111; border-bottom: none; }
 .muted { color: #666; } .small { font-size: .8rem; }
 .status { text-align: right; }
 .invoice footer { margin-top: 2rem; text-align: center; border-top: 1px dashed #bbb; padding-top: 1rem; }
@@ -33,14 +31,12 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
 .kind-half .invoice { font-size: 11.5px; }
 .kind-half .invoice h1 { font-size: 1.3rem; }
 .kind-half .invoice header { padding-bottom: .6rem; margin-bottom: .8rem; }
-.kind-half .shop img { width: 40px; height: 40px; }
 .kind-half .totals { width: 70%; }
 .kind-half .invoice footer { margin-top: 1rem; }
 
 /* ---------- Thermal receipts ---------- */
 .kind-receipt .invoice { border-radius: 0; font: 12px/1.35 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: #000; }
 .receipt header { display: block; text-align: center; border-bottom: 1px dashed #000; padding-bottom: .5rem; margin-bottom: .5rem; }
-.receipt header img { display: block; margin: 0 auto .3rem; border-radius: 8px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .receipt h1 { font-size: 1.15em; margin: 0 0 .2rem; }
 .receipt p { margin: .05rem 0; }
 .r-customer { border-bottom: 1px dashed #000; padding-bottom: .4rem; margin-bottom: .4rem; }
@@ -51,13 +47,11 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
 .r-line { display: flex; justify-content: space-between; gap: .5rem; }
 .r-line span:last-child { white-space: nowrap; }
 .r-totals { padding: .4rem 0; border-bottom: 1px dashed #000; }
-.r-total, .r-balance { font-weight: 700; }
 .r-balance { font-size: 1.1em; margin-top: .2rem; }
-.r-status { text-align: center; font-weight: 700; margin: .5rem 0 !important; letter-spacing: .1em; }
+.r-status { text-align: center; margin: .5rem 0 !important; letter-spacing: .15em; }
 .receipt footer { margin-top: .4rem; padding-top: .4rem; border-top: none; text-align: center; }
 .receipt footer .small { font-size: .85em; }
 .paper-thermal58 .invoice { font-size: 10px; }
-.paper-thermal58 .receipt header img { width: 30px; height: 30px; }
 
 @media print {
   body { background: #fff; }
@@ -66,3 +60,42 @@ thead th { border-bottom: 2px solid #111; font-size: .8rem; text-transform: uppe
 }
 .storage-warning { background: #b91c1c; color: #fff; font-weight: 600; padding: .7rem 1rem; text-align: center; line-height: 1.4; }
 .storage-warning code { background: rgba(255, 255, 255, .2); padding: 0 .3rem; border-radius: 4px; }
+
+/* ---------- Shop details block (the ONLY bold text on receipts and invoices) ---------- */
+.invoice, .invoice * { font-weight: 400; }
+.invoice .shop-info, .invoice .shop-info * { font-weight: 700; }
+.shop-info { display: flex; align-items: center; gap: .85rem; }
+.shop-info p { margin: 0; }
+.shop-info .shop-name { font-size: 1.45em; line-height: 1.2; }
+.shop-info .shop-address { white-space: pre-line; }
+.shop-logo { display: block; flex: none; border-radius: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.invoice header { align-items: flex-start; }
+.doc-no { font-size: 1.1em; }
+.bill-name { font-size: 1.1em; }
+.receipt .shop-info { flex-direction: column; text-align: center; gap: .3rem; margin-bottom: .45rem; }
+.receipt .shop-info .shop-name { font-size: 1.2em; }
+.receipt .doc-meta { border-top: 1px dashed #000; padding-top: .4rem; }
+.receipt .doc-title { letter-spacing: .05em; }
+.r-balance { font-size: 1.15em; }
+.paper-thermal58 .shop-logo { width: 30px; height: 30px; }
+
+/* ---------- Line spacing (Settings → Receipt & invoice style) ---------- */
+.spacing-normal .invoice { line-height: 1.4; }
+.spacing-wide .invoice { line-height: 1.75; }
+.spacing-xwide .invoice { line-height: 2.05; }
+.spacing-wide .invoice p, .spacing-wide .r-line, .spacing-wide .r-items li { margin-bottom: .2em; }
+.spacing-xwide .invoice p, .spacing-xwide .r-line, .spacing-xwide .r-items li { margin-bottom: .4em; }
+.spacing-wide .invoice th, .spacing-wide .invoice td { padding-top: .6rem; padding-bottom: .6rem; }
+.spacing-xwide .invoice th, .spacing-xwide .invoice td { padding-top: .8rem; padding-bottom: .8rem; }
+.spacing-wide .r-items li { padding: .3rem 0; }
+.spacing-xwide .r-items li { padding: .45rem 0; }
+
+/* ---------- Text size ---------- */
+.text-small .invoice { font-size: 12.5px; }
+.text-large .invoice { font-size: 16px; }
+.kind-receipt.text-small .invoice { font-size: 10.5px; }
+.kind-receipt.text-normal .invoice { font-size: 12px; }
+.kind-receipt.text-large .invoice { font-size: 14px; }
+.paper-thermal58.text-small .invoice { font-size: 9px; }
+.paper-thermal58.text-normal .invoice { font-size: 10px; }
+.paper-thermal58.text-large .invoice { font-size: 11.5px; }

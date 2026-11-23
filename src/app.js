@@ -68,7 +68,12 @@ function createApp({
       currentUser: null,
       csrfToken: '',
       flash: null,
+      flashError: null,
+      shop: null,
       ephemeralStorage,
+      // Safe JSON for <script type="application/json"> data blocks (no </script> break-out).
+      jsonData: (v) => JSON.stringify(v).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029'),
     });
     next();
   });
@@ -94,7 +99,9 @@ function createApp({
   }));
   app.use((req, res, next) => {
     res.locals.flash = req.session.flash || null;
+    res.locals.flashError = req.session.flashError || null;
     delete req.session.flash;
+    delete req.session.flashError;
     next();
   });
   app.use(loadUser(db));
@@ -106,6 +113,11 @@ function createApp({
   app.use(require('./routes/dashboard')(db));
   app.use('/orders', require('./routes/orders')(db));
   app.use('/sales', require('./routes/sales')(db));
+  app.use('/collections', require('./routes/collections')(db));
+  app.use('/customers', require('./routes/customers')(db));
+  app.use('/catalog', require('./routes/catalog')(db));
+  app.use('/inventory', require('./routes/inventory')(db));
+  app.use('/settings', require('./routes/settings')(db));
   app.use('/api', require('./routes/api')(db));
 
   app.use((req, res) => res.status(404).render('error', { title: 'Not found', message: 'That page does not exist.' }));

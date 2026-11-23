@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1>Services &amp; Items</h1>
+  <div class="actions">
+    <a class="button primary" href="/catalog/new?kind=service">+ Add service</a>
+    <a class="button primary" href="/catalog/new?kind=item">+ Add item</a>
+  </div>
+</div>
+<nav class="tabs">
+  <a href="/catalog" class="<%= show === '' ? 'active' : '' %>">All</a>
+  <a href="/catalog?show=service" class="<%= show === 'service' ? 'active' : '' %>">Services</a>
+  <a href="/catalog?show=item" class="<%= show === 'item' ? 'active' : '' %>">Items</a>
+  <a href="/catalog?show=inactive" class="<%= show === 'inactive' ? 'active' : '' %>">Inactive</a>
+</nav>
+<form method="get" action="/catalog" class="filters card">
+  <input type="hidden" name="show" value="<%= show %>">
+  <input type="search" name="q" value="<%= q %>" maxlength="100" placeholder="Search name, category or code">
+  <button type="submit">Search</button>
+</form>
+<section class="card">
+  <p class="muted small"><strong>Services</strong> are jobs you do (layout, tarpaulin printing per sq ft, lamination). <strong>Items</strong> are goods you sell (mugs, folders, ink); turn on stock tracking to manage them in Inventory. Pick these when creating an order to fill in the name and price.</p>
+  <% if (!products.length) { %><p class="muted">Nothing here yet.</p><% } else { %>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Type</th><th>Category</th><th class="num">Price</th><th>Stock</th><th></th></tr></thead>
+    <tbody>
+    <% products.forEach(function (p) { %>
+      <tr>
+        <td><strong><%= p.name %></strong><% if (p.sku) { %> <span class="muted small"><%= p.sku %></span><% } %></td>
+        <td><span class="badge kind-<%= p.kind %>"><%= p.kind_label %></span></td>
+        <td><%= p.category || '—' %></td>
+        <td class="num"><%= fmt.peso(p.price_cents) %> <span class="muted small">/ <%= p.unit %></span></td>
+        <td><% if (p.track_stock) { %><a href="/inventory/<%= p.id %>"><span class="badge stock-<%= p.stock_status %>"><%= p.stock_qty %> <%= p.unit %> · <%= p.stock_label %></span></a><% } else { %><span class="muted">—</span><% } %></td>
+        <td class="row-actions">
+          <a href="/catalog/<%= p.id %>/edit">Edit</a>
+          <form method="post" action="/catalog/<%= p.id %>/active" class="inline">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="active" value="<%= p.active ? '0' : '1' %>">
+            <button type="submit" class="link"><%= p.active ? 'Deactivate' : 'Reactivate' %></button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

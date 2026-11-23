@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+<div class="page-head">
+  <h1>Collections</h1>
+  <a class="button" href="/sales">Sales history</a>
+</div>
+
+<section class="stats">
+  <div class="stat anim" data-i="1"><span class="label">Total unpaid</span><span class="value danger-text"><%= fmt.peso(summary.total_cents) %></span><span class="sub"><%= summary.count %> order<%= summary.count === 1 ? '' : 's' %></span></div>
+  <div class="stat anim" data-i="2"><span class="label">Released but unpaid</span><span class="value"><%= fmt.peso(summary.released_cents) %></span><span class="sub"><%= summary.released_count %> already picked up</span></div>
+  <% summary.buckets.forEach(function (b, i) { %>
+    <a class="stat stat-link anim <%= filters.bucket === b.key ? 'selected' : '' %>" data-i="<%= i + 3 %>" href="/collections?bucket=<%= encodeURIComponent(b.key) %>">
+      <span class="label"><%= b.label %> old</span><span class="value <%= b.min > 30 && b.count ? 'danger-text' : '' %>"><%= fmt.peso(b.total_cents) %></span><span class="sub"><%= b.count %> order<%= b.count === 1 ? '' : 's' %></span>
+    </a>
+  <% }) %>
+</section>
+
+<form method="get" action="/collections" class="filters card">
+  <input type="search" name="q" value="<%= filters.q %>" maxlength="100" placeholder="Search order no, customer or phone">
+  <select name="bucket">
+    <option value="">Any age</option>
+    <% BUCKETS.forEach(function (b) { %><option value="<%= b.key %>" <%= filters.bucket === b.key ? 'selected' : '' %>><%= b.label %></option><% }) %>
+  </select>
+  <button type="submit">Filter</button>
+  <% if (filters.q || filters.bucket) { %><a href="/collections">Clear</a><% } %>
+</form>
+
+<div class="grid-main">
+  <section class="card">
+    <h2>Unpaid orders <span class="muted">(oldest first)</span></h2>
+    <% if (!rows.length) { %><p class="muted">Nothing to collect. Every order is paid. 🎉</p><% } else { %>
+    <div class="table-wrap">
+    <table class="collect">
+      <thead><tr><th>Order</th><th>Customer</th><th>Age</th><th class="num">Total</th><th class="num">Paid</th><th class="num">Balance</th><th>Record payment</th></tr></thead>
+      <tbody>
+      <% rows.forEach(function (r) { %>
+        <tr class="<%= r.days > 30 ? 'row-overdue' : r.days > 7 ? 'row-soon' : '' %>">
+          <td><a href="/orders/<%= r.id %>"><strong><%= r.order_no %></strong></a><div><span class="badge s-<%= r.status %>"><%= STATUS_LABELS[r.status] %></span></div></td>
+          <td><% if (r.customer_id) { %><a href="/customers/<%= r.customer_id %>"><%= r.customer_name %></a><% } else { %><%= r.customer_name %><% } %>
+            <% if (r.customer_phone) { %><div class="muted small"><%= r.customer_phone %></div><% } %></td>
+          <td><%= r.days %> day<%= r.days === 1 ? '' : 's' %><div class="muted small"><%= fmt.dateOnly(r.created_at) %></div></td>
+          <td class="num"><%= fmt.peso(r.total_cents) %></td>
+          <td class="num"><%= fmt.peso(r.paid_cents) %></td>
+          <td class="num owed"><strong><%= fmt.peso(r.balance_cents) %></strong></td>
+          <td>
+            <form method="post" action="/orders/<%= r.id %>/payments" class="quick-pay">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="return_to" value="collections">
+              <input name="amount" inputmode="decimal" maxlength="15" value="<%= (r.balance_cents / 100).toFixed(2) %>" aria-label="Amount for <%= r.order_no %>">
+              <select name="method" aria-label="Method for <%= r.order_no %>"><% METHODS.forEach(function (m) { %><option value="<%= m %>"><%= METHOD_LABELS[m] %></option><% }) %></select>
+              <input name="reference" maxlength="100" placeholder="Ref no." aria-label="Reference for <%= r.order_no %>">
+              <button type="submit" class="primary">Pay</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+    </div>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <h2>Biggest balances</h2>
+    <% if (!summary.topCustomers.length) { %><p class="muted">None.</p><% } else { %>
+    <ul class="deadlines">
+      <% summary.topCustomers.forEach(function (c) { %>
+        <li>
+          <span><% if (c.customer_id) { %><a href="/customers/<%= c.customer_id %>"><%= c.name %></a><% } else { %><%= c.name %><% } %>
+            <span class="muted small"><%= c.count %> order<%= c.count === 1 ? '' : 's' %></span></span>
+          <strong class="owed"><%= fmt.peso(c.balance_cents) %></strong>
+        </li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </section>
+</div>
+<%- include('partials/footer') %>

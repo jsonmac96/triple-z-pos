@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1><%= customer.name %> <% if (customer.order_count > 1) { %><span class="badge repeat">Repeat client</span><% } %></h1>
+  <div class="actions">
+    <a class="button" href="/customers/<%= customer.id %>/edit">Edit</a>
+    <a class="button primary" href="/orders/new?customer=<%= customer.id %>">+ New order for this customer</a>
+  </div>
+</div>
+<div class="grid2">
+  <section class="card">
+    <h2>Details</h2>
+    <dl class="details">
+      <dt>Phone</dt><dd><%= customer.phone || '—' %></dd>
+      <dt>Email</dt><dd><%= customer.email || '—' %></dd>
+      <dt>Address</dt><dd class="pre"><%= customer.address || '—' %></dd>
+      <% if (customer.notes) { %><dt>Notes</dt><dd class="pre"><%= customer.notes %></dd><% } %>
+      <dt>Customer since</dt><dd><%= fmt.dateOnly(customer.created_at) %></dd>
+    </dl>
+  </section>
+  <section class="stats stats-tight">
+    <div class="stat"><span class="label">Orders</span><span class="value"><%= customer.order_count %></span></div>
+    <div class="stat"><span class="label">Total paid</span><span class="value"><%= fmt.peso(customer.paid_cents) %></span></div>
+    <div class="stat <%= customer.balance_cents > 0 ? 'danger' : '' %>"><span class="label">Balance owed</span><span class="value"><%= fmt.peso(customer.balance_cents) %></span></div>
+  </section>
+</div>
+<section class="card">
+  <h2>Order history</h2>
+  <% if (!orders.length) { %><p class="muted">No orders yet.</p><% } else { %>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Order</th><th>Date</th><th>Description</th><th>Status</th><th class="num">Total</th><th class="num">Balance</th></tr></thead>
+    <tbody>
+    <% orders.forEach(function (o) { %>
+      <tr>
+        <td><a href="/orders/<%= o.id %>"><strong><%= o.order_no %></strong></a></td>
+        <td><%= fmt.dateOnly(o.created_at) %></td>
+        <td><%= o.description.slice(0, 60) %></td>
+        <td><%- include('../partials/badge', { order: o }) %></td>
+        <td class="num"><%= fmt.peso(o.total_cents) %></td>
+        <td class="num <%= o.balance_cents > 0 && o.status !== 'cancelled' ? 'owed' : '' %>"><%= fmt.peso(o.balance_cents) %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

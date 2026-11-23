@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+<%- include('../partials/errors', { errors }) %>
+<form method="post" action="<%= action %>" class="card narrow-form" id="product-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <% if (product) { %>
+    <p class="muted">Type: <span class="badge kind-<%= product.kind %>"><%= KINDS[product.kind] %></span></p>
+  <% } else if (kinds.length > 1) { %>
+    <label>Type
+      <select name="kind" id="kind-select">
+        <% kinds.forEach(function (k) { %><option value="<%= k %>" <%= form.kind === k ? 'selected' : '' %>><%= KINDS[k] %></option><% }) %>
+      </select>
+    </label>
+  <% } else { %>
+    <input type="hidden" name="kind" value="<%= kinds[0] %>">
+  <% } %>
+  <label>Name * <input name="name" value="<%= form.name || '' %>" maxlength="120" required placeholder="<%= form.kind === 'material' ? 'e.g. Bond paper long (ream)' : form.kind === 'item' ? 'e.g. Sublimation mug' : 'e.g. Tarpaulin printing' %>"></label>
+  <div class="row2">
+    <label>Category <input name="category" value="<%= form.category || '' %>" maxlength="60" placeholder="e.g. Large format"></label>
+    <label>Code / SKU <input name="sku" value="<%= form.sku || '' %>" maxlength="40"></label>
+  </div>
+  <div class="row2">
+    <label>Unit *
+      <input name="unit" value="<%= form.unit || 'pc' %>" maxlength="20" list="units" required>
+      <datalist id="units"><% UNITS.forEach(function (u) { %><option value="<%= u %>"><% }) %></datalist>
+    </label>
+    <% if (form.kind !== 'material') { %>
+    <label>Selling price (₱) <input name="price" value="<%= form.price || '' %>" inputmode="decimal" maxlength="15" placeholder="0.00"></label>
+    <% } %>
+  </div>
+  <label>Cost (₱, optional) <input name="cost" value="<%= form.cost || '' %>" inputmode="decimal" maxlength="15" placeholder="What it costs you per unit"></label>
+
+  <fieldset class="stock-fields <%= form.kind === 'service' ? 'is-hidden' : '' %>" id="stock-fields">
+    <legend>Stock</legend>
+    <% if (form.kind !== 'material') { %>
+      <label class="check"><input type="checkbox" name="track_stock" value="1" <%= form.track_stock ? 'checked' : '' %>> Track stock for this item (deducted automatically when ordered)</label>
+    <% } %>
+    <div class="row2">
+      <% if (!product) { %><label>Starting stock <input name="stock_qty" value="<%= form.stock_qty || '' %>" inputmode="numeric" maxlength="7" placeholder="0"></label><% } %>
+      <label>Reorder level <input name="reorder_level" value="<%= form.reorder_level || '' %>" inputmode="numeric" maxlength="7" placeholder="Warn when stock is at or below"></label>
+    </div>
+    <% if (product && product.track_stock) { %><p class="muted small">Current stock: <strong><%= product.stock_qty %> <%= product.unit %></strong>. Change it from <a href="/inventory/<%= product.id %>">Inventory</a> (stock in / out / count).</p><% } %>
+  </fieldset>
+
+  <label>Notes <textarea name="notes" maxlength="500" rows="2"><%= form.notes || '' %></textarea></label>
+  <div class="actions">
+    <button type="submit" class="primary">Save</button>
+    <a href="<%= base %>">Cancel</a>
+  </div>
+</form>
+<script src="/static/js/product-form.js" defer></script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <h1><%= product.name %> <span class="badge stock-<%= product.stock_status %>"><%= product.stock_label %></span></h1>
+  <div class="actions">
+    <a class="button" href="<%= product.kind === 'material' ? '/inventory' : '/catalog' %>/<%= product.id %>/edit">Edit details</a>
+    <a class="button" href="/inventory">Back to inventory</a>
+  </div>
+</div>
+<%- include('../partials/errors', { errors }) %>
+<div class="grid2">
+  <section class="card">
+    <h2>On hand</h2>
+    <p class="big-number"><%= product.stock_qty %> <span class="muted"><%= product.unit %></span></p>
+    <dl class="details">
+      <dt>Type</dt><dd><%= product.kind_label %></dd>
+      <dt>Reorder level</dt><dd><%= product.reorder_level %> <%= product.unit %></dd>
+      <% if (product.cost_cents) { %><dt>Cost</dt><dd><%= fmt.peso(product.cost_cents) %> / <%= product.unit %></dd><% } %>
+      <% if (product.kind !== 'material') { %><dt>Selling price</dt><dd><%= fmt.peso(product.price_cents) %> / <%= product.unit %></dd><% } %>
+    </dl>
+  </section>
+  <section class="card">
+    <h2>Update stock</h2>
+    <form method="post" action="/inventory/<%= product.id %>/stock" class="stock-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Action
+        <select name="mode">
+          <option value="stock_in">Stock in (received / bought)</option>
+          <option value="stock_out">Stock out (used / damaged)</option>
+          <option value="adjust">Set to actual count</option>
+        </select>
+      </label>
+      <label>Quantity (<%= product.unit %>) <input name="qty" inputmode="numeric" maxlength="7" required></label>
+      <label>Note <input name="note" maxlength="200" placeholder="e.g. Delivery from supplier, used for job TZ-…"></label>
+      <button type="submit" class="primary">Save</button>
+    </form>
+  </section>
+</div>
+<section class="card">
+  <h2>Stock history</h2>
+  <% if (!movements.length) { %><p class="muted">No changes yet.</p><% } else { %>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>When</th><th>What</th><th class="num">Change</th><th>Note</th><th>By</th></tr></thead>
+    <tbody>
+    <% movements.forEach(function (m) { %>
+      <tr>
+        <td><%= fmt.dateTime(m.created_at) %></td>
+        <td><%= REASON_LABELS[m.reason] %><% if (m.order_no) { %> · <a href="/orders/<%= m.order_id %>"><%= m.order_no %></a><% } %></td>
+        <td class="num <%= m.change < 0 ? 'owed' : 'paid' %>"><%= m.change > 0 ? '+' : '' %><%= m.change %></td>
+        <td><%= m.note %></td>
+        <td><%= m.user_name || '' %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

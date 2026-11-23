@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title><%= title %> · Triple Z Printing</title>
+  <title><%= title %> · <%= shop.shop_name %></title>
   <link rel="stylesheet" href="/static/css/print.css">
   <link rel="stylesheet" href="/static/css/paper/<%= paper.key %>.css" id="paper-css">
 <%- include('partials/head-icons') %>
 </head>
 <% const statusText = order.status === 'cancelled' ? 'CANCELLED' : order.balance_cents <= 0 ? 'PAID' : order.paid_cents > 0 ? 'PARTIALLY PAID' : 'UNPAID'; %>
-<body class="paper-<%= paper.key %> kind-<%= paper.kind %>" data-paper-width="<%= paper.width %>">
+<body class="paper-<%= paper.key %> kind-<%= paper.kind %> spacing-<%= shop.receipt_spacing %> text-<%= shop.receipt_text %>" data-paper-width="<%= paper.width %>">
 <% if (ephemeralStorage) { %>
 <div class="storage-warning no-print" role="alert">
   &#9888; Data is NOT being saved permanently. Orders, sales and password changes will be erased the next time the app is updated or restarts.
@@ -42,15 +42,17 @@
 <% if (paper.kind === 'receipt') { %>
   <article class="invoice receipt">
     <header>
-      <img src="/static/img/logo-mark.svg" alt="" width="40" height="40">
-      <h1>Triple Z Printing</h1>
-      <p>INVOICE <strong><%= order.order_no %></strong></p>
-      <p>Date: <%= fmt.dateOnly(order.created_at) %></p>
-      <p>Pickup: <%= fmt.dateTime(order.deadline_at) %></p>
+      <%- include('partials/shop-info', { shop, compact: true }) %>
+      <div class="doc-meta">
+        <p class="doc-title">INVOICE <%= order.order_no %></p>
+        <p>Date: <%= fmt.dateOnly(order.created_at) %></p>
+        <p>Pickup: <%= fmt.dateTime(order.deadline_at) %></p>
+      </div>
     </header>
     <section class="r-customer">
-      <p><strong><%= order.customer_name %></strong></p>
+      <p>Customer: <%= order.customer_name %></p>
       <% if (order.customer_phone) { %><p><%= order.customer_phone %></p><% } %>
+      <% if (order.customer_address) { %><p class="desc"><%= order.customer_address %></p><% } %>
       <% if (order.description) { %><p class="desc"><%= order.description %></p><% } %>
     </section>
     <ul class="r-items">
@@ -70,31 +72,26 @@
     </div>
     <p class="r-status"><%= statusText %></p>
     <footer>
-      <p>Thank you for choosing Triple Z Printing!</p>
+      <% if (shop.receipt_footer) { %><p><%= shop.receipt_footer %></p><% } %>
       <p class="small">Printed <%= fmt.dateTime(printedAt) %> by <%= currentUser.display_name %></p>
     </footer>
   </article>
 <% } else { %>
   <article class="invoice">
     <header>
-      <div class="shop">
-        <img src="/static/img/logo-mark.svg" alt="" width="56" height="56">
-        <div>
-          <h1>Triple Z Printing</h1>
-          <p class="muted">Printing services</p>
-        </div>
-      </div>
+      <%- include('partials/shop-info', { shop, compact: paper.kind === 'half' }) %>
       <div class="meta">
         <h2>INVOICE</h2>
-        <p><strong><%= order.order_no %></strong></p>
+        <p class="doc-no"><%= order.order_no %></p>
         <p>Date: <%= fmt.dateOnly(order.created_at) %></p>
         <p>Due / pickup: <%= fmt.dateTime(order.deadline_at) %></p>
       </div>
     </header>
     <section class="bill-to">
       <h3>Bill to</h3>
-      <p><strong><%= order.customer_name %></strong></p>
+      <p class="bill-name"><%= order.customer_name %></p>
       <% if (order.customer_phone) { %><p><%= order.customer_phone %></p><% } %>
+      <% if (order.customer_address) { %><p class="desc"><%= order.customer_address %></p><% } %>
       <% if (order.customer_email) { %><p><%= order.customer_email %></p><% } %>
       <% if (order.description) { %><p class="desc"><%= order.description %></p><% } %>
     </section>
@@ -113,9 +110,9 @@
       <% }) %>
       <tr class="balance"><th>Balance due</th><td class="num"><%= fmt.peso(order.balance_cents) %></td></tr>
     </table>
-    <p class="status">Status: <strong><%= statusText %></strong></p>
+    <p class="status">Status: <%= statusText %></p>
     <footer>
-      <p>Thank you for choosing Triple Z Printing!</p>
+      <% if (shop.receipt_footer) { %><p><%= shop.receipt_footer %></p><% } %>
       <p class="muted small">Printed <%= fmt.dateTime(printedAt) %> by <%= currentUser.display_name %></p>
     </footer>
   </article>

@@ -1,0 +1,56 @@
+<%- include('partials/header') %>
+<h1>Settings</h1>
+<%- include('partials/errors', { errors }) %>
+<form method="post" action="/settings" class="settings-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <section class="card">
+    <h2>Shop details <span class="muted small">printed in <strong>bold</strong> at the top of receipts and invoices</span></h2>
+    <div class="row2">
+      <label>Shop name * <input name="shop_name" value="<%= form.shop_name %>" maxlength="<%= LIMITS.shop_name %>" required></label>
+      <label>Tagline <input name="shop_tagline" value="<%= form.shop_tagline %>" maxlength="<%= LIMITS.shop_tagline %>" placeholder="e.g. Printing services"></label>
+    </div>
+    <label>Address <textarea name="shop_address" rows="2" maxlength="<%= LIMITS.shop_address %>" placeholder="Street, Barangay, City"><%= form.shop_address %></textarea></label>
+    <div class="row2">
+      <label>Contact number(s) <input name="shop_phone" value="<%= form.shop_phone %>" maxlength="<%= LIMITS.shop_phone %>" placeholder="0917 123 4567 / (02) 8123 4567"></label>
+      <label>Email <input type="email" name="shop_email" value="<%= form.shop_email %>" maxlength="<%= LIMITS.shop_email %>"></label>
+    </div>
+    <div class="row2">
+      <label>Other contact <input name="shop_other" value="<%= form.shop_other %>" maxlength="<%= LIMITS.shop_other %>" placeholder="e.g. FB: Triple Z Printing"></label>
+      <label>TIN / Business no. <input name="shop_tin" value="<%= form.shop_tin %>" maxlength="<%= LIMITS.shop_tin %>"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Receipt &amp; invoice style</h2>
+    <div class="row2">
+      <label>Line spacing
+        <select name="receipt_spacing">
+          <% Object.keys(SPACING).forEach(function (k) { %><option value="<%= k %>" <%= form.receipt_spacing === k ? 'selected' : '' %>><%= SPACING[k] %></option><% }) %>
+        </select>
+        <span class="hint">More space between lines makes printed text easier to read.</span>
+      </label>
+      <label>Text size
+        <select name="receipt_text">
+          <% Object.keys(TEXT_SIZES).forEach(function (k) { %><option value="<%= k %>" <%= form.receipt_text === k ? 'selected' : '' %>><%= TEXT_SIZES[k] %></option><% }) %>
+        </select>
+      </label>
+    </div>
+    <label class="check"><input type="checkbox" name="receipt_logo" value="1" <%= form.receipt_logo === '1' ? 'checked' : '' %>> Show the logo</label>
+    <label>Footer message <input name="receipt_footer" value="<%= form.receipt_footer %>" maxlength="<%= LIMITS.receipt_footer %>"></label>
+    <p class="hint">Only the shop name, address and contacts are bold; everything else prints in regular letters.</p>
+  </section>
+
+  <div class="actions">
+    <button type="submit" class="primary">Save settings</button>
+    <% if (latestOrder) { %>
+      <a class="button" href="/orders/<%= latestOrder.id %>/invoice">Preview on latest order (<%= latestOrder.order_no %>)</a>
+    <% } %>
+  </div>
+</form>
+
+<section class="card">
+  <h2>Backup</h2>
+  <p>Download a copy of your customers, orders, payments, services, items and stock (passwords are never included). Keep it somewhere safe.</p>
+  <a class="button" href="/settings/backup.json">Download backup</a>
+</section>
+<%- include('partials/footer') %>

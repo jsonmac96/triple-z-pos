@@ -20,6 +20,7 @@
   <div class="stat anim" data-i="4"><span class="label">Due today</span><span class="value" data-count="<%= stats.dueToday %>"><%= stats.dueToday %></span></div>
   <div class="stat anim <%= stats.overdue ? 'danger' : '' %>" data-i="5"><span class="label">Overdue</span><span class="value" data-count="<%= stats.overdue %>"><%= stats.overdue %></span></div>
   <div class="stat anim" data-i="6"><span class="label">Ready for pickup</span><span class="value" data-count="<%= stats.ready %>"><%= stats.ready %></span></div>
+  <a class="stat stat-link anim <%= unpaid.total_cents ? 'warn' : '' %>" data-i="6" href="/collections"><span class="label">Unpaid balance</span><span class="value" data-count="<%= unpaid.total_cents %>" data-money="1"><%= fmt.peso(unpaid.total_cents) %></span><span class="sub"><%= unpaid.count %> order<%= unpaid.count === 1 ? '' : 's' %> to collect</span></a>
 </section>
 
 <div class="grid2">
@@ -50,6 +51,19 @@
     <% } %>
   </section>
 </div>
+
+<% if (low.length) { %>
+<section class="card anim low-stock" data-i="9">
+  <h2>&#9888; Low stock <span class="muted small">reorder soon</span></h2>
+  <ul class="deadlines">
+    <% low.slice(0, 8).forEach(function (p) { %>
+      <li><a href="/inventory/<%= p.id %>"><strong><%= p.name %></strong></a>
+        <span class="right"><span class="badge stock-<%= p.stock_qty <= 0 ? 'out' : 'low' %>"><%= p.stock_qty %> <%= p.unit %> left</span> <span class="muted small">reorder at <%= p.reorder_level %></span></span></li>
+    <% }) %>
+  </ul>
+  <% if (low.length > 8) { %><a href="/inventory?status=low">See all <%= low.length %></a><% } %>
+</section>
+<% } %>
 
 <section class="card anim" data-i="9">
   <h2>Recent payments</h2>

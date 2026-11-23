@@ -67,3 +67,53 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires);
+
+-- ---- v2: settings, customers, catalog/inventory ----
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name COLLATE NOCASE);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
+
+CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL CHECK (kind IN ('service','item','material')),
+  name TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  sku TEXT NOT NULL DEFAULT '',
+  unit TEXT NOT NULL DEFAULT 'pc',
+  price_cents INTEGER NOT NULL DEFAULT 0 CHECK (price_cents >= 0),
+  cost_cents INTEGER NOT NULL DEFAULT 0 CHECK (cost_cents >= 0),
+  track_stock INTEGER NOT NULL DEFAULT 0,
+  stock_qty INTEGER NOT NULL DEFAULT 0,
+  reorder_level INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_products_kind ON products(kind, active);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_id INTEGER NOT NULL REFERENCES products(id),
+  change INTEGER NOT NULL,
+  reason TEXT NOT NULL CHECK (reason IN ('stock_in','stock_out','adjust','order','opening')),
+  order_id INTEGER REFERENCES orders(id),
+  note TEXT NOT NULL DEFAULT '',
+  user_id INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_movements_product ON stock_movements(product_id, created_at);

@@ -201,7 +201,7 @@ test('invoice paper sizes: default letter, choice remembered, whitelist only', a
   const { id } = await createOrder(agent);
   let res = await agent.get(`/orders/${id}/invoice`);
   assert.match(res.text, /\/static\/css\/paper\/letter\.css/);
-  assert.match(res.text, /class="paper-letter kind-sheet"/);
+  assert.match(res.text, /class="paper-letter kind-sheet spacing-wide text-normal"/);
 
   res = await agent.get(`/orders/${id}/invoice?paper=thermal80`);
   assert.match(res.text, /\/static\/css\/paper\/thermal80\.css/);

@@ -2,6 +2,8 @@
 const express = require('express');
 const { dashboardStats } = require('../services/sales');
 const { alertOrders, listOrders } = require('../services/orders');
+const { collections } = require('../services/collections');
+const { lowStock } = require('../services/inventory');
 
 module.exports = function dashboardRoutes(db) {
   const router = express.Router();
@@ -12,7 +14,9 @@ module.exports = function dashboardRoutes(db) {
       .filter((o) => o.urgency !== 'none' || o.status === 'ready').slice(0, 10);
     const recent = db.prepare(`SELECT p.*, o.order_no, o.customer_name FROM payments p JOIN orders o ON o.id = p.order_id
       ORDER BY p.paid_at DESC LIMIT 6`).all();
-    res.render('dashboard', { title: 'Dashboard', stats, alerts, upcoming, recent });
+    const unpaid = collections(db).summary;
+    const low = lowStock(db);
+    res.render('dashboard', { title: 'Dashboard', stats, alerts, upcoming, recent, unpaid, low });
   });
   return router;
 };
